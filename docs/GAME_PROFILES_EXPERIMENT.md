@@ -56,6 +56,34 @@ This variable is applied *only in the test launch configuration* to see if an au
 
 **Note:** `auto_overrides_enable = "false"` is diagnostic. If it has broader effects (e.g. disables a user's custom mapping), keep it out of the final shipping configuration and implement a narrowly scoped override solution instead.
 
+## Stage-02 actual hardware result: still stretched (2026-11-22)
+
+The user launched **both separate stage-02 Aspect Test entries** on the real original RG35XX. In both, **Keep Aspect Ratio was still Off**. **Automatic phone resolutions remained correct**, as in stage-01.
+
+**Outcome: Stage-02 FAIL for automatic aspect ratio; per-game resolution remains PASS.** Adding `auto_overrides_enable = "false"` did **not** fix the observed video setting. This weakens the simple late-auto-override hypothesis, but does not establish exactly how this GarlicOS RetroArch version orders or ignores `--appendconfig` and overrides.
+
+Upstream RetroArch has historically had `--appendconfig` precedence problems with core overrides (see [RetroArch issue #9007](https://github.com/libretro/RetroArch/issues/9007)). The fix for appendconfig/override interactions also changed over RetroArch releases; do not project modern behavior onto GarlicOS 1.4.9.
+
+**Next action: no new TF2 files or test builds.** Inspect the existing stage-02 verbose logs to locate which base config/override files actually loaded, preferably without mounting or editing TF1. On Windows PowerShell, with the correct TF2 drive letter (example `F:`):
+
+```powershell
+$logs = @(
+    'F:\J2ME\logs\profile-aspect-02-bounce.log'
+    'F:\J2ME\logs\profile-aspect-02-diamond-rush.log'
+)
+foreach ($log in $logs) {
+    if (-not (Test-Path -LiteralPath $log -PathType Leaf)) {
+        Write-Host "MISSING: $log"
+        continue
+    }
+    Write-Host "=== $log ==="
+    Select-String -LiteralPath $log -Pattern 'config', 'override', 'aspect', 'options' |
+        Select-Object -First 70 | ForEach-Object { $_.Line }
+}
+```
+
+Once the effective config order is known, prefer the narrowest **TF2-only** change (if warranted, an isolated full base-config copy launched with `--config`) and preserve input/hotkey configuration. Avoid saving global TF1 settings or changing the working core.
+
 ## Generate a temporary TF2 overlay
 
 ```bash
