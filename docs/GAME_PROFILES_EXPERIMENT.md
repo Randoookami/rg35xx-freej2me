@@ -1,6 +1,6 @@
 # Experimental J2ME game profiles, stage 01
 
-**Status: automatic game options PASS; automatic aspect PASS in the stage-03 two-flag test on hardware. Final isolation test (without diagnostic overrides flag) pending. Draft, not merged.**
+**Status: hardware PASS for automatic game resolution switching and aspect-preserving display in Bounce and Diamond Rush. No game-specific FreeJ2ME C/Java changes.**
 
 ## Problem and approach
 
@@ -110,6 +110,16 @@ Earlier `video_force_aspect = "true"` alone did not toggle the visible Keep Aspe
 **One remaining isolation check before merge:** remove only the `auto_overrides_enable = "false"` line from the two test-only stage-02 configs on TF2, while **retaining** `video_dingux_ipu_keep_aspect = "true"`. Verify automatic correct proportions for both games without manually toggling RetroArch. If both pass, the generated production-style settings (without the diagnostic flag) are hardware validated. Keep backups in Windows and do not touch TF1, saves or binaries.
 
 To repeat the test with the corrected generator in WSL, provide a **new** staging destination: the generator refuses overwriting `out/game-profiles-01`.
+
+## Final stage-04 isolation result: PASS without diagnostic overrides flag
+
+On 2026-11-22 the user removed `auto_overrides_enable = "false"` from both experimental stage-02 TF2 configs and **kept only the Dingux/IPU aspect correction** (`video_dingux_ipu_keep_aspect = "true"`) alongside existing frontend settings.
+
+**Result: PASS in Bounce and Diamond Rush:** both games immediately display with correct proportions on launch, with no manual RetroArch menu toggle. The earlier hardware checks also confirmed automatic 128×128/176×208 resolution selection and the return to Bounce's 128×128 profile.
+
+This rules out the need for the temporary `auto_overrides_enable` diagnostic setting in this two-game configuration. The generator was updated to emit `video_dingux_ipu_keep_aspect = "true"` while **never emitting** `auto_overrides_enable = "false"`.
+
+Keep the stage-01/02 experiments as historical diagnostics, not as end-user release installers. A clean generated deployment using the newest script has not itself been copied to TF2, but its relevant configuration settings now match the tested combination.
 
 ## Generate a temporary TF2 overlay
 
