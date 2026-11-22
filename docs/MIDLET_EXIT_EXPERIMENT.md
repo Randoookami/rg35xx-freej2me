@@ -83,7 +83,7 @@ the user reported that choosing **Exit** within the Bounce game returned almost 
 
 This corroborates that the `0xFD` MIDlet exit handshake and RetroArch shutdown environment request can work together, with dummy-core loading disabled. The earlier log already confirmed `MIDlet normal exit requested; asking frontend to shut down.`
 
-**Diamond Rush exit subsequently verified;** save persistence, RetroArch manual exit and error handling remain open.
+**Diamond Rush exit subsequently verified;** manual RetroArch quit also passed on both games. Save persistence and error handling remain open.
 
 ## Third hardware result: Diamond Rush passed
 
@@ -93,10 +93,16 @@ On 2026-11-22, the user confirmed that **Diamond Rush also exits from its in-gam
 
 ### Pending regression before merging
 
-- Normal Quit RetroArch from a running test game still exits to GarlicOS.
-- Restart both games; verify game progress and save persistence after in-game exit.
-- Confirm existing, non-experimental PORTS entries still work.
-- Confirm no errors or TF2 filesystem problems; inspect logs if unusual behavior occurs.
+- [x] Normal Quit RetroArch from a running test game still exits to GarlicOS (Bounce and Diamond Rush).
+- [ ] Restart both games; verify game progress and save persistence after in-game exit.
+- [ ] Confirm existing, non-experimental PORTS entries still work.
+- [ ] Confirm no errors or TF2 filesystem problems; inspect logs if unusual behavior occurs.
+
+## Fourth hardware result: manual RetroArch quit still works
+
+On 2026-11-22, the user confirmed that both test games also exit successfully using **Quick Menu → Main Menu → Quit RetroArch**, returning to GarlicOS. This is independent of the in-game MIDlet exit command.
+
+**Hardware result: PASS for manual RetroArch exit in both Bounce and Diamond Rush.** This confirms the experimental integration does not remove the existing manual exit path in these tests.
 
 ## Hardware test preparation (already completed for first tests)
 
