@@ -9,6 +9,21 @@ These are **observations on one original RG35XX**, not performance guarantees or
 
 Shared device setup: GarlicOS 1.4.9, FreeJ2ME-Plus 1.53 native ARM32 core with RGB565 conversion, Zulu Java 8u512 ARMHF, private glibc 2.31 on TF2.
 
+## Exit and save persistence regression (2026-11-22)
+
+With the experimental paired Java JAR + ARM32 RGB565 core and the test-only RetroArch setting `load_dummy_on_core_shutdown = "false"`:
+
+| Test | Bounce | Diamond Rush |
+| --- | --- | --- |
+| In-game Exit returns directly to GarlicOS | PASS | PASS |
+| Quick Menu → Main Menu → Quit RetroArch | PASS | PASS |
+| Re-launch after exit | PASS | PASS |
+| In-game progress persists after console reboot | PASS | PASS |
+| Existing non-test launcher still runs | PASS | PASS |
+| Native RetroArch savestates | Not implemented | Not implemented |
+
+Legacy launchers intentionally still have the original in-game exit limitation. Test reports are based on user-observed hardware behavior. These tests do not prove compatibility with other J2ME games.
+
 ## Visual caveats
 
 The tested 176×208 Diamond Rush content initially showed blank right/bottom regions at incorrect phone resolutions. Selecting 176×208 filled the virtual game area. Physical display aspect-ratio correction is unfinished and the game may still appear stretched to 4:3.
