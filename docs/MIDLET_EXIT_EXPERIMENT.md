@@ -2,6 +2,17 @@
 
 **Status: untested on hardware. Draft change, NOT a stable release.**
 
+**Build result (2026-11-22):** On the original WSL development environment, both experimental components compiled successfully: `EXIT_EXPERIMENT_BUILD_OK`, `BUILD_EXIT_CODE=0`. Native core is ELF32 ARM EABI5 soft-float and directly links only `libc.so.0`. The Java libretro JAR compiled successfully using the Java 8 Docker image and Apache Ant. Build warnings about detached HEAD, apt/debconf and obsolete `-source 1.5` are non-fatal.
+
+Verified experimental binary SHA-256 values:
+
+```text
+d133db3464bcd93417958bf087957cd2377866343a1fb4f13bdd260db4d74a69  freej2me_plus_libretro.so
+79c049038530daf21b8e969e1c612d627d657d798510233409034f0483f7a867  freej2me_plus-lr.jar
+```
+
+This is compilation verification only; MIDlet exit / RetroArch shutdown remains **untested on actual hardware**.
+
 ## Why a protocol change is needed
 
 In upstream FreeJ2ME-Plus 1.53, `MIDlet.notifyDestroyed()` clears `Mobile.midlet`, but the libretro Java process remains alive, so the native core cannot distinguish an intentional app exit from ordinary idle frames.
