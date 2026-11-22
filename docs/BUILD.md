@@ -63,6 +63,6 @@ For a description of exact TF2 paths and ABI boundaries see [Architecture](ARCHI
 - Fully automated Java-runtime packaging, hash verification and licensing review.
 - Portable public Docker toolchain image/digest.
 - Stable end-user install script.
-- Reliable aspect-ratio, audio and exit handling.
+- Reliable **audio** and broader game/abnormal-exit handling; aspect correction and normal MIDlet exit are hardware-verified for tested variants (see [ROADMAP.md](ROADMAP.md)).
 
 Do not download from arbitrary mirrors or publish private vendor executables as project source.
