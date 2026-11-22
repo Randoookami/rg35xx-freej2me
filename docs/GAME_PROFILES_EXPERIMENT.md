@@ -1,6 +1,6 @@
 # Experimental J2ME game profiles, stage 01
 
-**Status: source-only prototype; untested on the original RG35XX. Do not merge or replace known-good PORTS entries until hardware validation.**
+**Status: game-option switching PASSED on hardware; aspect still requires an automatic-launch test. Draft, not merged.**
 
 ## Problem and approach
 
@@ -16,6 +16,45 @@ This experiment makes **declarative game definitions**, not game-specific emulat
 | --- | --- | --- | --- |
 | Bounce | 128×128 | Off | Disabled |
 | Diamond Rush | 176×208 | Off | Disabled |
+
+## Follow-up hardware feedback: manual Keep Aspect Ratio fixes both games
+
+On 2026-11-22 the tester confirmed **Keep Aspect Ratio was Off** in the running experimental RetroArch session, and switching it **On** corrected the visible shape in **both Bounce and Diamond Rush**. This isolates the aspect failure to the RetroArch frontend setting and rules out a need to change the Java virtual resolution or the RGB565 converter for the two test games.
+
+**Why the original config was not enough:** the generated `--appendconfig` already contains `video_force_aspect = "true"`, yet the visible menu reported Off. A late-loaded RetroArch override is one plausible explanation; however, the exact precedence on the GarlicOS build has not yet been diagnosed. RetroArch can load core/game overrides after other config files. Do not mistake this hypothesis for a verified cause.
+
+### Stage-02 controlled diagnostic — prevent auto-loading overrides
+
+Without modifying stage-01 launchers or any tested core/JAR, stage a **second, separate** pair of PORTS launchers:
+
+```bash
+PUB="$HOME/rg35xx-freej2me-public"
+git -C "$PUB" pull --ff-only
+python3 -m py_compile "$PUB/scripts/stage-aspect-02.py"
+python3 "$PUB/scripts/stage-aspect-02.py"
+find "$PUB/out/game-profiles-aspect-02" -type f -print | sort
+```
+
+`scripts/stage-aspect-02.py` requires the successful stage-01 folder at `out/game-profiles-01`, refuses to overwrite anything, and stages exactly **four files**:
+
+```text
+J2ME/profile-test-02/launcher-config/bounce.cfg
+J2ME/profile-test-02/launcher-config/diamond-rush.cfg
+Roms/PORTS/J2ME_bounce_Aspect_Test.sh
+Roms/PORTS/J2ME_diamond_rush_Aspect_Test.sh
+```
+
+The configs preserve the successful stage-01 core-option file paths and the `video_force_aspect = "true"` setting. The **only new RetroArch config variable** is:
+
+```ini
+auto_overrides_enable = "false"
+```
+
+This variable is applied *only in the test launch configuration* to see if an auto-loaded core/game override was resetting Keep Aspect Ratio. It does not alter TF1's configuration and preserves separate `J2ME/test-saves`. All stage-01 launchers continue to exist.
+
+**Acceptance test:** launch Bounce Aspect Test with no manual settings changes; check `Settings → Video → Scaling → Keep Aspect Ratio` is **On** on startup and the image is square. Repeat with Diamond Rush. If still Off, do not save settings; report both results, and inspect actual runtime override/config file precedence before trying another change. New logs: `J2ME/logs/profile-aspect-02-bounce.log`, `profile-aspect-02-diamond-rush.log`.
+
+**Note:** `auto_overrides_enable = "false"` is diagnostic. If it has broader effects (e.g. disables a user's custom mapping), keep it out of the final shipping configuration and implement a narrowly scoped override solution instead.
 
 ## Generate a temporary TF2 overlay
 
