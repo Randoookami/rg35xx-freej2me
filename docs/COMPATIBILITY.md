@@ -35,6 +35,19 @@ Legacy launchers intentionally still have the original in-game exit limitation. 
 
 The 176×208 Diamond Rush variant initially showed missing screen content with an incorrect phone profile; per-game `.opt` files resolved this. The generic `video_force_aspect = "true"` frontend setting alone did not activate GarlicOS's **Keep Aspect Ratio** control. The Dingux/IPU setting did. This is a user-observed result on the original RG35XX, not proof across other RetroArch versions or JAR editions.
 
+## Additional JARs via additive Universal Launcher (2026-11-22)
+
+These entries were installed as **new files only**; the user tested the resulting shortcuts on the original RG35XX. All four return successfully to the GarlicOS menu.
+
+| User-supplied JAR variant | Launcher observations | Virtual phone profile | In-game exit |
+| --- | --- | --- | --- |
+| Bounce Tales | Runs almost perfectly out of the box; longer gameplay and saves not measured | Fallback 240×320, Sound Off | PASS |
+| Tower Bloxx | Runs almost perfectly out of the box; longer gameplay and saves not measured | Fallback 240×320, Sound Off | PASS |
+| The Sims Bowling | Starts, but user reports resolution/orientation problem | Fallback 240×320 **not yet confirmed suitable** | PASS |
+| James Camerons Avatar | Runs, but this JAR is a **photo demo**, not a playable game | Fallback 240×320, Sound Off | PASS |
+
+The user mentioned `320×240` while the generated profile is `240×320`; neither should be asserted as Sims Bowling's verified intended screen size. A screenshot or an in-game resolution-selection test is needed. Do not conflate the successful photo demo with compatibility for an actual playable Avatar game JAR.
+
 ## Sound caveat
 
 With sound enabled, a Java exception was observed in `javax.microedition.media.Manager.retrieveAvailableSynthIndex` / `MIDIPlayer.start` / `com.nokia.mid.sound.Sound.play`. In Bounce, turning virtual sound off coincided with restoring successful gameplay. This is evidence of an audio-path problem, **not yet a proven single root cause for every game**.
