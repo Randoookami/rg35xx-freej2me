@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "device": "original-rg35xx-garlicos-1.4.9",
+  "games": [
+    {
+      "id": "bounce",
+      "display_name": "Bounce",
+      "rom_file": "Bounce.jar",
+      "resolution": "128x128",
+      "sound": "off",
+      "backlight": "Disabled"
+    },
+    {
+      "id": "diamond-rush",
+      "display_name": "Diamond Rush",
+      "rom_file": "Diamond Rush.jar",
+      "resolution": "176x208",
+      "sound": "off",
+      "backlight": "Disabled"
+    }
+  ]
+}
