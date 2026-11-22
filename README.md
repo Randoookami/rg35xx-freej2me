@@ -7,7 +7,7 @@ This project is **unofficial** and is not affiliated with the upstream emulator 
 **Full ChatGPT-assisted development project.** Project architecture, source-code modifications, troubleshooting, build workflows and documentation have been developed with substantial assistance from OpenAI ChatGPT. **[Randoookami](https://github.com/Randoookami)** owns the project, executes builds, performs hands-on RG35XX hardware testing, supplies technical feedback, and validates results. See [Development credits](docs/DEVELOPMENT_CREDITS.md) for the detailed roles and attribution.
 
 
-> **Status: working proof of concept, not yet a plug-and-play release.** Two J2ME games have reached playable gameplay on actual hardware. Sound is currently disabled, and several integration problems remain.
+> **Status (2026-11-22): working hardware-tested proof of concept, not yet a plug-and-play release.** Six supplied JAR entries launch through the Universal Launcher with verified virtual phone resolutions (one Avatar-named JAR is a **photo demo**, not a playable Avatar game). The first two games have stronger gameplay, exit and RMS-save verification. Sound remains disabled in the tested baseline; audio, controls and long-session performance remain open.
 
 ## Verified on hardware
 
@@ -22,7 +22,7 @@ This project is **unofficial** and is not affiliated with the upstream emulator 
 | Bounce | Playable; observed phone resolution **128×128** |
 | Diamond Rush | Playable intro; observed phone resolution **176×208** |
 
-Both games were tested with **Virtual Phone Sound: Off** and **LCD Backlight Color: Off**. These resolutions describe the tested JAR versions, not every release of each game. FPS has **not** been objectively benchmarked.
+The initial two games were tested with **Virtual Phone Sound: Off** and **LCD Backlight Color: Disabled**; generated additional profiles also default to these settings. These resolutions describe specific supplied JAR variants, not every release of each game. FPS has **not** been objectively benchmarked.
 
 ## How it works
 
@@ -42,9 +42,9 @@ GarlicOS 1.4.9 / RetroArch (TF1; not modified)
 
 - **Audio is off** for current successful tests. A MIDI-path exception was observed with sound enabled, alongside failed gameplay progression in Bounce.
 - **Game-menu exit:** the optional Java + native `0xFD` handshake was tested successfully in Bounce and Diamond Rush, returning directly to GarlicOS with `load_dummy_on_core_shutdown = "false"` in the TF2-only RetroArch configuration. The older launchers still use the original exit behavior; the modified JAR and core must be installed as a pair.
-- **Per-game phone resolution and display aspect** are automatically set by the verified declarative TF2 profiles for Bounce (128×128) and Diamond Rush (176×208). The GarlicOS/Dingux frontend needs `video_dingux_ipu_keep_aspect = "true"` in each test launcher config; the generic `video_force_aspect` setting alone was insufficient. Other game variants remain untested.
+- **Per-game resolution and display aspect:** automatic profiles work for Bounce (128×128), Diamond Rush (176×208), Bounce Tales (240×320), Tower Bloxx (240×320), The Sims Bowling (360×360) and the Avatar-named photo demo (240×320). The specific Sims 360×360 setting persists after a full console reboot. The GarlicOS/Dingux frontend needs `video_dingux_ipu_keep_aspect = "true"` in each launcher config; `video_force_aspect` alone was insufficient. Broader JAR compatibility remains untested.
 - **In-game save persistence** was verified for Bounce and Diamond Rush across launches and a console reboot. **Libretro save states are not supported**, so the GarlicOS `Recent` menu displays its built-in unsupported-save-state message. Its `X` history-removal behavior is also under investigation.
-- **Universal J2ME Launcher:** the shared POSIX-shell dispatcher with generated GarlicOS PORTS shortcuts launches Bounce and Diamond Rush on original RG35XX hardware. An additive generator safely installs extra games without replacing the validated dispatcher. Bounce Tales and Tower Bloxx also run nearly perfectly with initial fallback profiles; The Sims Bowling works at user-verified 360×360; an Avatar-named JAR turned out to be a working photo demo rather than a playable game. All four extra JARs return to GarlicOS. Broader compatibility and save persistence remain unverified.
+- **Universal J2ME Launcher:** one shared POSIX-shell dispatcher plus generated PORTS shortcuts works for all six tested JAR entries. The additive installer from merged [PR #10](https://github.com/Randoookami/rg35xx-freej2me/pull/10) installs new profiles only (8/8 WSL host tests reported PASS); it deliberately **cannot update existing files**. All four additional entries return to GarlicOS. Broader gameplay, new-game RMS persistence and audio remain unverified. Updating existing profiles safely is tracked in [#11](https://github.com/Randoookami/rg35xx-freej2me/issues/11).
 - **Gamepad mapping** and performance tuning need further validation.
 - **TF2 FAT32 integrity** should be monitored: filesystem corruption was encountered during development; its cause has not been established.
 - No supported installer or tested downloadable release bundle is available yet.
