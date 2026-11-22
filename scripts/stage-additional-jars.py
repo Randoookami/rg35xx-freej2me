@@ -14,6 +14,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 BASE_SCRIPT = ROOT / "scripts" / "stage-universal-launcher.py"
+PROFILE_OVERRIDES = ROOT / "profiles" / "additional-overrides.json"
 
 
 def existing_generator():
@@ -23,6 +24,37 @@ def existing_generator():
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     return module
+
+
+def read_profile_overrides(generator, known_names):
+    """Read declarative corrections for specific discovered JAR filename variants."""
+    data = json.loads(PROFILE_OVERRIDES.read_text(encoding="utf-8"))
+    if data.get("schema_version") != 1 or not isinstance(data.get("profiles"), list):
+        raise ValueError("Invalid additional profile overrides schema")
+    overrides = {}
+    for entry in data["profiles"]:
+        if not isinstance(entry, dict):
+            raise ValueError("Profile override is not an object")
+        extra_keys = set(entry) - {"rom_file", "resolution", "sound", "backlight"}
+        if extra_keys:
+            raise ValueError("Unexpected profile override keys: " + repr(extra_keys))
+        name = entry.get("rom_file")
+        if not isinstance(name, str) or not generator.SAFE_JAR.fullmatch(name):
+            raise ValueError("Unsafe override JAR filename: " + repr(name))
+        key = name.casefold()
+        if key in overrides or key in known_names:
+            raise ValueError("Duplicate or known-game override: " + name)
+        settings = {k: entry[k] for k in ("resolution", "sound", "backlight") if k in entry}
+        if not settings:
+            raise ValueError("Empty profile override for " + name)
+        # Use the same tested core-option value validation as all other profiles.
+        probe = {
+            "id": "auto-override-check", "display_name": name,
+            "rom_file": name, **generator.DEFAULTS, **settings
+        }
+        generator.validate_game(probe)
+        overrides[key] = settings
+    return overrides
 
 
 def stage_additions(destination, rom_dir, selected):
@@ -39,6 +71,7 @@ def stage_additions(destination, rom_dir, selected):
     known_names = {g["rom_file"].casefold() for g in known}
     all_games = generator.discover([dict(g) for g in known], rom_dir)
     new_games = [g for g in all_games if g["rom_file"].casefold() not in known_names]
+    overrides = read_profile_overrides(generator, known_names)
     if selected:
         wanted = {name.casefold() for name in selected}
         new_names = {g["rom_file"].casefold() for g in new_games}
@@ -49,6 +82,15 @@ def stage_additions(destination, rom_dir, selected):
         new_games = [g for g in new_games if g["rom_file"].casefold() in wanted]
     if not new_games:
         raise ValueError("No new safe JAR files detected; nothing to stage")
+
+    # Filename-specific hardware feedback overrides the conservative fallback,
+    # without changing hash-derived IDs or touching any already-installed files.
+    for game in new_games:
+        change = overrides.get(game["rom_file"].casefold())
+        if change:
+            game.update(change)
+            generator.validate_game(game)
+            print("VERIFIED PROFILE:", game["rom_file"], game["resolution"])
 
     # The FAT32 destination is case-insensitive. Check all generated path names
     # before producing files. The target SD's actual existing files are checked
