@@ -51,6 +51,24 @@ The script creates an isolated source copy under `$PUB/out/midlet-exit-01/freej2
 
 The stock native core/JAR and TF1/TF2 remain untouched. The public `main` branch remains unchanged.
 
+## First hardware result: core signal received, frontend remained open
+
+On 2026-11-22, the Bounce exit test on RG35XX emitted:
+
+```text
+MIDlet normal exit requested; asking frontend to shut down.
+```
+
+The user reported the core/content exited into RetroArch's menu and had to choose **Quit RetroArch** manually to return to GarlicOS. The log then recorded `RETROARCH_EXIT_CODE=0`, but this proves **manual** RetroArch quit completed, not that the callback exited RetroArch on its own.
+
+Hypothesis: the RetroArch option `load_dummy_on_core_shutdown = "true"` causes `RETRO_ENVIRONMENT_SHUTDOWN` to return to a dummy core/menu rather than quitting the frontend. The experiment's **TF2-only** append configuration now explicitly sets:
+
+```ini
+load_dummy_on_core_shutdown = "false"
+```
+
+**Retest required:** choose Exit within Bounce and check whether the process returns directly to GarlicOS without touching RetroArch's menu. Do not change the global TF1 RetroArch configuration.
+
 ## Hardware test design (not yet performed)
 
 After both components build successfully, prepare an isolated TF2 staging directory on WSL with:
