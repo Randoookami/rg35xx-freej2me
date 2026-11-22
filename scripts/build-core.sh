@@ -35,7 +35,7 @@ cp -a "$UPSTREAM/src/libretro/." "$OUT/"
 # Use a clean copy of upstream source. Never patch the user's upstream checkout.
 (
   cd "$OUT"
-  patch -p1 < "$PORT_ROOT/patches/0001-rg35xx-rgb565.patch"
+  patch -p3 < "$PORT_ROOT/patches/0001-rg35xx-rgb565.patch"
 )
 
 docker run --rm \
