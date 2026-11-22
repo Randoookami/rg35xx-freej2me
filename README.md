@@ -42,7 +42,7 @@ GarlicOS 1.4.9 / RetroArch (TF1; not modified)
 
 - **Audio is off** for current successful tests. A MIDI-path exception was observed with sound enabled, alongside failed gameplay progression in Bounce.
 - **Game-menu exit:** the optional Java + native `0xFD` handshake was tested successfully in Bounce and Diamond Rush, returning directly to GarlicOS with `load_dummy_on_core_shutdown = "false"` in the TF2-only RetroArch configuration. The older launchers still use the original exit behavior; the modified JAR and core must be installed as a pair.
-- **Aspect ratio and scaling** are not automated; the current view can stretch portrait games across a 4:3 display.
+- **Per-game phone resolution and display aspect** are automatically set by the verified declarative TF2 profiles for Bounce (128×128) and Diamond Rush (176×208). The GarlicOS/Dingux frontend needs `video_dingux_ipu_keep_aspect = "true"` in each test launcher config; the generic `video_force_aspect` setting alone was insufficient. Other game variants remain untested.
 - **In-game save persistence** was verified for Bounce and Diamond Rush across launches and a console reboot. **Libretro save states are not supported**, so the GarlicOS `Recent` menu displays its built-in unsupported-save-state message. Its `X` history-removal behavior is also under investigation.
 - **Gamepad mapping** and performance tuning need further validation.
 - **TF2 FAT32 integrity** should be monitored: filesystem corruption was encountered during development; its cause has not been established.
@@ -55,6 +55,7 @@ GarlicOS 1.4.9 / RetroArch (TF1; not modified)
 - [Compatibility report](docs/COMPATIBILITY.md) — observed game results.
 - [Known issues and roadmap](docs/ROADMAP.md).
 - [MIDlet exit integration and hardware test results](docs/MIDLET_EXIT_EXPERIMENT.md).
+- [Per-game profiles and aspect test results](docs/GAME_PROFILES_EXPERIMENT.md).
 - [Development credits and AI assistance](docs/DEVELOPMENT_CREDITS.md).
 - [Third-party software and redistribution](docs/THIRD_PARTY.md).
 
