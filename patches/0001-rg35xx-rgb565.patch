@@ -1,0 +1,67 @@
+--- a/src/libretro/freej2me_libretro.c
++++ b/src/libretro/freej2me_libretro.c
+@@ -150,6 +150,29 @@
+ unsigned int frameBufferSize = MAX_WIDTH * MAX_HEIGHT * 3;
+ unsigned int frame[MAX_WIDTH * MAX_HEIGHT];
+ unsigned char frameBuffer[MAX_WIDTH * MAX_HEIGHT * 3];
++
++/* RG35XX: convert internal XRGB8888 to frontend RGB565. */
++static unsigned short frameRGB565[MAX_WIDTH * MAX_HEIGHT];
++
++static void submit_frame_rgb565(void)
++{
++    unsigned int i;
++    unsigned int count = frameWidth * frameHeight;
++
++    for (i = 0; i < count; i++)
++    {
++        unsigned int c = frame[i];
++
++        frameRGB565[i] = (unsigned short)(
++            ((c >> 8) & 0xF800u) |
++            ((c >> 5) & 0x07E0u) |
++            ((c >> 3) & 0x001Fu));
++    }
++
++    Video(frameRGB565, frameWidth, frameHeight,
++          sizeof(unsigned short) * frameWidth);
++}
++
+ unsigned char frameHeader[15]; // This is always frameHeader's length in Libretro.java -1 (we read the status byte separately)
+ struct retro_game_info gameinfo;
+ 
+@@ -1209,14 +1232,14 @@
+ 				{
+ 					Environ(RETRO_ENVIRONMENT_SET_MESSAGE_EXT, (void*)&messages[FRAMES_DROPPED_MSG]);
+ 				}
+-				Video(frame, frameWidth, frameHeight, sizeof(unsigned int) * frameWidth);
++				submit_frame_rgb565();
+ 				return;
+ 			}
+ 			if(status<0 && errno != EAGAIN)
+ 			{
+ 				Environ(RETRO_ENVIRONMENT_SET_MESSAGE_EXT, (void*)&messages[INVALID_STATUS_MSG]);
+ 				fflush(stdout);
+-				Video(frame, frameWidth, frameHeight, sizeof(unsigned int) * frameWidth);
++				submit_frame_rgb565();
+ 				return;
+ 			}
+ 			/*
+@@ -1393,7 +1416,7 @@
+ 	}
+ 
+ 	/* send frame to libretro irrespective of FreeJ2ME running (for error messages) */
+-	Video(frame, frameWidth, frameHeight, sizeof(unsigned int) * frameWidth);
++	submit_frame_rgb565();
+ 
+ 	/*
+ 	 * I couldn't find a way for the frontend to notify FreeJ2ME's process that it has paused,
+@@ -1435,7 +1458,7 @@
+ 	info->geometry.aspect_ratio = ((float)BASE_WIDTH) / ((float)BASE_HEIGHT);
+ 
+ 	info->timing.fps = DEFAULT_FPS;
+-	int pixelformat = RETRO_PIXEL_FORMAT_XRGB8888;
++	int pixelformat = RETRO_PIXEL_FORMAT_RGB565;
+ 	Environ(RETRO_ENVIRONMENT_SET_PIXEL_FORMAT, &pixelformat);
+ }
+ 
