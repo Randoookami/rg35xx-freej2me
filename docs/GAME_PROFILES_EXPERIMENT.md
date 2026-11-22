@@ -84,6 +84,21 @@ foreach ($log in $logs) {
 
 Once the effective config order is known, prefer the narrowest **TF2-only** change (if warranted, an isolated full base-config copy launched with `--config`) and preserve input/hotkey configuration. Avoid saving global TF1 settings or changing the working core.
 
+## Stage-03 diagnostic: Dingux/IPU aspect setting (untested)
+
+A more specific explanation emerged after stage-02 continued to show **Keep Aspect Ratio = Off** in both games. RetroArch has two different configuration settings:
+
+- `video_force_aspect` — general video aspect behavior; already present in stage-01 and stage-02.
+- `video_dingux_ipu_keep_aspect` — Dingux-specific IPU aspect preservation, where enabled in the build.
+
+Upstream configuration source confirms the second key in `#if defined(DINGUX)`, and prior RG35XX GarlicOS reports describe setting `video_dingux_ipu_keep_aspect = "true"` for the visible Keep Aspect Ratio menu switch. The exact compiled GarlicOS frontend still needs direct hardware verification. Sources:
+- https://sources.debian.org/src/retroarch/1.14.0%2Bdfsg-1/configuration.c/
+- https://www.reddit.com/r/RG35XX/comments/14ktt6n/
+
+**Minimal next test:** back up the two existing `J2ME/profile-test-02/launcher-config/{bounce,diamond-rush}.cfg` files **to Windows storage**; append exactly `video_dingux_ipu_keep_aspect = "true"` to each test-only file, without altering any TF1 paths or game saves. Re-launch the *same* stage-02 Aspect Test entries and inspect Keep Aspect Ratio and resulting image before touching the menu. Avoid saving RetroArch configuration or overrides.
+
+If this fixes automatic aspect, update the main `scripts/stage-game-profiles.py` generator and remove the diagnostic-only `auto_overrides_enable = "false"` from the shipping template. If it does not, inspect active RetroArch settings/overrides more deeply rather than patching J2ME code.
+
 ## Generate a temporary TF2 overlay
 
 ```bash
