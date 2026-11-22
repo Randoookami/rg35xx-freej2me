@@ -1,24 +1,30 @@
 # Roadmap / known issues
 
-## Baseline (observed working)
+## Hardware-verified baseline (2026-11-22)
 
-- Original RG35XX, GarlicOS 1.4.9, all J2ME-specific runtime files on TF2.
-- RGB565 rendering patch in the libretro core.
-- Bounce at 128×128; Diamond Rush at 176×208.
-- Virtual Phone Sound off; LCD Backlight Color off.
+- Target: **original RG35XX**, GarlicOS 1.4.9, TF1 left unchanged; J2ME runtime, launcher scripts and user-provided ROMs on FAT32 TF2.
+- Emulator: pinned FreeJ2ME-Plus 1.53, ARM32 uClibc libretro core with RGB565 video conversion; separate ARMHF Zulu Java 8 and private glibc.
+- Paired Java + native `0xFD` MIDlet shutdown protocol returns to GarlicOS from tested in-game Exit menus; `load_dummy_on_core_shutdown = "false"` is TF2-only.
+- Automatic per-JAR core options and correct image proportions work using `video_dingux_ipu_keep_aspect = "true"` in per-game launcher configs, without globally disabling overrides.
+- RMS/in-game progress persisted through a full reboot for **Bounce and Diamond Rush**. This is **not** libretro savestate support.
+- One shared Universal Launcher `dispatch.sh` works with generated GarlicOS PORTS shortcuts. An additive-only installer adds new JARs without rewriting tested files ([PR #10](https://github.com/Randoookami/rg35xx-freej2me/pull/10), merged).
+- Six user-supplied JAR entries launched with tested virtual phone sizes: Bounce 128×128; Diamond Rush 176×208; Bounce Tales 240×320; Tower Bloxx 240×320; The Sims Bowling **360×360**; James Camerons Avatar 240×320 (**photo demo only**). Sims 360×360 persists after relaunch and full console reboot.
+- The additive generator's latest **8/8** Python unit tests passed on the developer's WSL host. No project-wide CI workflow is present. No downloadable end-user release is validated.
+- **Sound Off / Backlight Disabled** remains the tested default; reported performance is subjective, not benchmarked.
 
 ## Next priorities
 
-1. **MIDlet lifecycle — verified in two games:** the 0xFD Java-to-native signaling plus TF2-only `load_dummy_on_core_shutdown = "false"` returns from either game's Exit menu directly to GarlicOS. Manual Quit RetroArch still works. Broader game and unexpected-crash coverage remain future work.
-2. **Independent game profiles + Universal Launcher — hardware PASS in two games:** generated per-JAR `.opt` files apply Bounce 128×128 and Diamond Rush 176×208; one shared POSIX dispatcher and automatically generated GarlicOS PORTS shortcuts launch both on real hardware. Next: a third legally owned JAR, fallback profile validation, and maintainable profile installation without replacing stable files.
-3. **Aspect ratio and scaling — verified in two games:** `video_dingux_ipu_keep_aspect = "true"` in the TF2-only launcher `.cfg` preserves both square and portrait images automatically, without disabling global overrides. More games/display modes remain to be tested.
-4. **Input remapping:** sensible RG35XX button-to-phone keypad defaults plus per-game overrides.
-5. **Audio/MIDI:** diagnose exception and support optional stable sound; keep silent mode for baseline.
-6. **Measure actual FPS and latency:** distinguish new game frames from RetroArch's reported refresh.
-7. **Save persistence and resilience:** in-game progress survived clean exit and full reboot for Bounce and Diamond Rush. Continue checking FAT32 integrity and additional games.
-8. **GarlicOS Recent and save states:** FreeJ2ME 1.53 has no libretro serialization; GarlicOS 1.4.9 displays the expected unsupported-savestate warning in Recent. Investigate why X does not remove these history entries and support safe history cleanup independently from the emulator. Do not pretend RMS saves are savestates.
-9. **Reproducible packaging:** verified scripts, license review, TF2-only installer instructions, integrity hashes, then optional releases.
+1. **Audio / MIDI — open [#3](https://github.com/Randoookami/rg35xx-freej2me/issues/3).** Reproduce the recorded `Manager.retrieveAvailableSynthIndex` / `MIDIPlayer` / Nokia Sound error, inspect soundfont/synthesizer and Java/native output paths, and test isolated opt-in audio configurations. Preserve the silent baseline and avoid game-specific emulator patches.
+2. **Gamepad / phone keypad mapping.** Validate D-pad, 0–9, *, #, left/right soft keys and hotkeys; keep per-game remaps separate from core options.
+3. **Performance and reliability.** Measure actual new game frames, audio overhead, input latency, CPU/memory use, extended runs and FAT32 integrity; do not mistake frontend refresh rate for game FPS.
+4. **Safe update of installed game profiles — [#11](https://github.com/Randoookami/rg35xx-freej2me/issues/11).** Existing no-overwrite additive installer only adds new entries. Determine the active `.opt` file precedence, then design backup-first targeted updates and rollback without touching current working TF2 settings.
+5. **GarlicOS Recent behavior — open [#5](https://github.com/Randoookami/rg35xx-freej2me/issues/5).** `X` does not remove J2ME items from Recent; unsupported libretro savestates are separate from working RMS saves.
+6. **Reproducible packaging and CI.** Keep source revision pinned; automate offline Python host tests; review third-party licenses and provenance before distributing any JDK/glibc/core/JAR binaries. Keep games, private saves and vendor assets out of Git.
+7. **Wider compatibility tests.** A successful launch is not proof of full gameplay or save compatibility. Do not infer a game's resolution merely from its filename; prefer validated declarative profile overrides.
 
-## Safety and scope
+## Development safety
 
-Do not optimize per game by modifying the VM. Prefer shared adapters, core fixes or declarative profiles. Preserve the known-good RGB565 build and original FreeJ2ME source commit as a regression reference.
+- Do not patch FreeJ2ME C/Java for each individual game when a profile suffices.
+- Preserve the tested core/JAR pair, shared dispatcher, RMS saves and TF1. Test changes using isolated TF2-only paths and host-only staging directories.
+- **Never reapply the 16-file PR #10 additive install onto existing destinations.** It intentionally refuses overwriting installed entries. The existing Sims profile works at 360×360 and persists after reboot.
+- Archived experiment documents preserve early FAIL and untested stages as development history; treat later dated hardware outcomes and this roadmap as the current status.

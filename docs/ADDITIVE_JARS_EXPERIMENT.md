@@ -1,6 +1,6 @@
 # Add new J2ME games without replacing Universal Launcher v1
 
-**Status:** WSL host checks passed (7/7 unit tests and shell syntax), PowerShell syntax and dry-run checks passed, and the four new JAR shortcuts were tried on original RG35XX hardware. Bounce Tales and Tower Bloxx run almost perfectly with fallback defaults; Avatar JAR is a working photo demo, not the anticipated playable game; The Sims Bowling also runs well after the user experimentally selected 360×360. All four can exit to GarlicOS. Keep existing Bounce and Diamond Rush installs intact.
+**Final status (2026-11-22):** [PR #10](https://github.com/Randoookami/rg35xx-freej2me/pull/10) **merged**; updated additive-generator host tests **8/8 PASS** (0.494 s) on WSL. Earlier seven-test results remain recorded below as historical steps. PowerShell preflight/dry-run and the additive TF2 installation were validated; four additional JAR entries start and exit on original RG35XX. Bounce Tales and Tower Bloxx run nearly perfectly at fallback 240×320; the Avatar-named JAR is a working **photo demo only**; The Sims Bowling runs at verified 360×360, which persists across complete relaunch and full console reboot. Keep the original Bounce/Diamond Rush files and all saves intact. The additive installer remains **new-files-only**.
 
 ## Six JARs currently on TF2
 
@@ -10,10 +10,10 @@ The user listed these legally supplied local JAR filenames (the game binaries ar
 | --- | --- | --- |
 | `Bounce.jar` | Tested in Universal Launcher v1 | 128×128, sound Off |
 | `Diamond Rush.jar` | Tested in Universal Launcher v1 | 176×208, sound Off |
-| `Bounce Tales.jar` | **NEW, untested** | Temporary fallback 240×320, sound Off |
-| `Tower Bloxx.jar` | **NEW, untested** | Temporary fallback 240×320, sound Off |
-| `The Sims Bowling.jar` | **Hardware tested** | **360×360** (user-verified), sound Off |
-| `James Camerons Avatar.jar` | **NEW, untested** | Temporary fallback 240×320, sound Off |
+| `Bounce Tales.jar` | Hardware launcher/gameplay tested | 240×320, sound Off |
+| `Tower Bloxx.jar` | Hardware launcher/gameplay tested | 240×320, sound Off |
+| `The Sims Bowling.jar` | Hardware tested, including profile persistence after reboot | **360×360**, sound Off |
+| `James Camerons Avatar.jar` | Photo demo launches; **not** playable Avatar game | 240×320, sound Off |
 
 The four new defaults are guesses for compatibility **only**, not detected resolutions. The universal `video_dingux_ipu_keep_aspect = "true"` option still preserves the selected virtual phone aspect ratio. Change a new game's size later through a safely regenerated additive profile after identifying what that game expects; never modify FreeJ2ME C/Java per title as the first response.
 
@@ -36,7 +36,7 @@ The four new defaults are guesses for compatibility **only**, not detected resol
 
 `profiles/additional-overrides.json` records `The Sims Bowling.jar` with `resolution: 360x360`. The new `stage-additional-jars.py` version applies this override after filename discovery and **before** generating `.opt` files. The hash-derived profile ID is unchanged: `auto-the-sims-bowling-c00b0e66`. All other new JARs retain the conservative fallback. This is a per-variant data fix, not a hardcoded game branch in the emulator.
 
-**Important deployment rule:** the existing `out/additional-jars-01` stage was generated before the correction and still contains 240×320 for Sims; **do not repeat the 16-file copy or overwrite the known working TF2 files**. Updated staging requires a brand-new WSL output directory, and the existing no-overwrite copier must correctly reject attempts to replace the already installed files. The verified 360×360 setting may currently have been selected in RetroArch's menu; persistence across a completely fresh relaunch is not yet separately confirmed. A narrowly scoped, backup-first *profile-update* workflow will be a later improvement.
+**Important deployment rule:** the existing `out/additional-jars-01` stage was generated before the correction and still contains 240×320 for Sims; **do not repeat the 16-file copy or overwrite known-working TF2 files**. Updated staging requires a fresh WSL output directory, and the no-overwrite copier must reject installed destinations. The user later confirmed that the current TF2 Sims Bowling 360×360 setting survives complete relaunch **and console reboot**. This proves persistence, **not** which specific RetroArch `.opt` file stores the changed value. Future backup-first targeted updates are tracked in [#11](https://github.com/Randoookami/rg35xx-freej2me/issues/11).
 
 To validate new output without touching TF2:
 
@@ -111,7 +111,7 @@ python3 "$PUB/scripts/stage-additional-jars.py" \
 find "$PUB/out/additional-jars-01/Roms/PORTS" -type f -name '*.sh' -exec sh -n {} \;
 ```
 
-Expected: **7/7 host unit tests** pass, `ADDITIVE_STAGE_OK`, `NEW_GAMES: 4`, `FILES: 16`. Those results are expectations until actually executed on the user's WSL.
+**Historical initial stage:** seven host tests existed at that step; the later final revision has **8/8 PASS** (confirmed on WSL, 2026-11-22), including the Sims 360×360 override test. A fresh four-game stage should report `ADDITIVE_STAGE_OK`, `NEW_GAMES: 4`, `FILES: 16`; do not install it over existing TF2 profiles.
 
 To stage **just one game** instead, choose another new, nonexistent output directory and add `--only "Bounce Tales.jar"` to the generator command. Repeat `--only` for selected names. This does not require editing the program.
 
