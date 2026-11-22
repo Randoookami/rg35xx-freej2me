@@ -51,6 +51,245 @@ foreach ($relative in $required) {
     }
 }
 
+# Confirm that every named new game is present on TF2. This also protects
+# no-card filename snapshots used during host-only staging.
+foreach ($game in $games) {
+    $name = [string]$game.rom_file
+    $id = [string]$game.id
+    if ($name -notmatch '^[A-Za-z0-9 _().+-]+\.jar
+foreach ($entry in $files) {
+    $rel = [string]$entry.path
+    $expect = [string]$entry.sha256
+
+    # Permit only these very specific targets; never ROMs, the dispatcher or TF1.
+    if ($rel -notmatch '^(?:J2ME/universal-v1/(?:options/auto-[a-z0-9-]+\.opt|launcher-config/auto-[a-z0-9-]+\.cfg|config/FreeJ2ME-Plus/[A-Za-z0-9 _().+-]+\.opt)|Roms/PORTS/J2ME_auto_[a-z0-9_]+\.sh)) {
+        throw "UNSAFE DESTINATION IN PLAN: $rel"
+    }
+    if ($expect -notmatch '^[0-9a-fA-F]{64}$') {
+        throw "INVALID EXPECTED SHA256: $rel"
+    }
+    if ($seen.ContainsKey($rel.ToLowerInvariant())) {
+        throw "DUPLICATE TARGET IN PLAN: $rel"
+    }
+    $seen[$rel.ToLowerInvariant()] = $true
+
+    $windowsRel = $rel.Replace('/', '\')
+    $from = Join-Path $Stage $windowsRel
+    $to = Join-Path $Tf2Root $windowsRel
+
+    if (-not (Test-Path -LiteralPath $from -PathType Leaf)) {
+        throw "MISSING SOURCE: $from"
+    }
+    if (Test-Path -LiteralPath $to) {
+        throw "REFUSING TO OVERWRITE EXISTING FILE: $to"
+    }
+    $actualHash = (Get-FileHash -LiteralPath $from -Algorithm SHA256).Hash
+    if ($actualHash -ne $expect) {
+        throw "SOURCE HASH MISMATCH: $rel"
+    }
+
+    $copyPlan += [pscustomobject]@{ Relative=$rel; From=$from; To=$to; SHA256=$expect }
+}
+
+Write-Host "PREFLIGHT_OK - $($games.Count) new games, $($copyPlan.Count) new files." -ForegroundColor Green
+foreach ($game in $games) {
+    Write-Host "NEW: $($game.rom_file) [fallback $($game.resolution), sound $($game.sound)]"
+}
+
+if (-not $Apply) {
+    Write-Host 'DRY_RUN_OK - No files copied. Re-run with -Apply after reviewing the list.' -ForegroundColor Green
+    exit 0
+}
+
+foreach ($item in $copyPlan) {
+    $parent = Split-Path -Path $item.To -Parent
+    [System.IO.Directory]::CreateDirectory($parent) | Out-Null
+    # Strictly non-overwriting. If anything appeared since preflight, fail.
+    [System.IO.File]::Copy($item.From, $item.To, $false)
+    $newHash = (Get-FileHash -LiteralPath $item.To -Algorithm SHA256).Hash
+    if ($newHash -ne $item.SHA256) {
+        throw "DESTINATION HASH MISMATCH: $($item.Relative) - do not launch until checked"
+    }
+    Write-Host "VERIFIED: $($item.Relative)" -ForegroundColor Green
+}
+
+Write-Host 'ADDITIVE_COPY_OK' -ForegroundColor Green
+Write-Host 'Safely eject TF2 after confirming completion. No stable files were replaced.'
+) {
+        throw "UNSAFE DESTINATION IN PLAN: $rel"
+    }
+    if ($expect -notmatch '^[0-9a-fA-F]{64}$') {
+        throw "INVALID EXPECTED SHA256: $rel"
+    }
+    if ($seen.ContainsKey($rel.ToLowerInvariant())) {
+        throw "DUPLICATE TARGET IN PLAN: $rel"
+    }
+    $seen[$rel.ToLowerInvariant()] = $true
+
+    $windowsRel = $rel.Replace('/', '\')
+    $from = Join-Path $Stage $windowsRel
+    $to = Join-Path $Tf2Root $windowsRel
+
+    if (-not (Test-Path -LiteralPath $from -PathType Leaf)) {
+        throw "MISSING SOURCE: $from"
+    }
+    if (Test-Path -LiteralPath $to) {
+        throw "REFUSING TO OVERWRITE EXISTING FILE: $to"
+    }
+    $actualHash = (Get-FileHash -LiteralPath $from -Algorithm SHA256).Hash
+    if ($actualHash -ne $expect) {
+        throw "SOURCE HASH MISMATCH: $rel"
+    }
+
+    $copyPlan += [pscustomobject]@{ Relative=$rel; From=$from; To=$to; SHA256=$expect }
+}
+
+Write-Host "PREFLIGHT_OK - $($games.Count) new games, $($copyPlan.Count) new files." -ForegroundColor Green
+foreach ($game in $games) {
+    Write-Host "NEW: $($game.rom_file) [fallback $($game.resolution), sound $($game.sound)]"
+}
+
+if (-not $Apply) {
+    Write-Host 'DRY_RUN_OK - No files copied. Re-run with -Apply after reviewing the list.' -ForegroundColor Green
+    exit 0
+}
+
+foreach ($item in $copyPlan) {
+    $parent = Split-Path -Path $item.To -Parent
+    [System.IO.Directory]::CreateDirectory($parent) | Out-Null
+    # Strictly non-overwriting. If anything appeared since preflight, fail.
+    [System.IO.File]::Copy($item.From, $item.To, $false)
+    $newHash = (Get-FileHash -LiteralPath $item.To -Algorithm SHA256).Hash
+    if ($newHash -ne $item.SHA256) {
+        throw "DESTINATION HASH MISMATCH: $($item.Relative) - do not launch until checked"
+    }
+    Write-Host "VERIFIED: $($item.Relative)" -ForegroundColor Green
+}
+
+Write-Host 'ADDITIVE_COPY_OK' -ForegroundColor Green
+Write-Host 'Safely eject TF2 after confirming completion. No stable files were replaced.'
+ -or
+        $id -notmatch '^auto-[a-z0-9-]+
+foreach ($entry in $files) {
+    $rel = [string]$entry.path
+    $expect = [string]$entry.sha256
+
+    # Permit only these very specific targets; never ROMs, the dispatcher or TF1.
+    if ($rel -notmatch '^(?:J2ME/universal-v1/(?:options/auto-[a-z0-9-]+\.opt|launcher-config/auto-[a-z0-9-]+\.cfg|config/FreeJ2ME-Plus/[A-Za-z0-9 _().+-]+\.opt)|Roms/PORTS/J2ME_auto_[a-z0-9_]+\.sh)) {
+        throw "UNSAFE DESTINATION IN PLAN: $rel"
+    }
+    if ($expect -notmatch '^[0-9a-fA-F]{64}$') {
+        throw "INVALID EXPECTED SHA256: $rel"
+    }
+    if ($seen.ContainsKey($rel.ToLowerInvariant())) {
+        throw "DUPLICATE TARGET IN PLAN: $rel"
+    }
+    $seen[$rel.ToLowerInvariant()] = $true
+
+    $windowsRel = $rel.Replace('/', '\')
+    $from = Join-Path $Stage $windowsRel
+    $to = Join-Path $Tf2Root $windowsRel
+
+    if (-not (Test-Path -LiteralPath $from -PathType Leaf)) {
+        throw "MISSING SOURCE: $from"
+    }
+    if (Test-Path -LiteralPath $to) {
+        throw "REFUSING TO OVERWRITE EXISTING FILE: $to"
+    }
+    $actualHash = (Get-FileHash -LiteralPath $from -Algorithm SHA256).Hash
+    if ($actualHash -ne $expect) {
+        throw "SOURCE HASH MISMATCH: $rel"
+    }
+
+    $copyPlan += [pscustomobject]@{ Relative=$rel; From=$from; To=$to; SHA256=$expect }
+}
+
+Write-Host "PREFLIGHT_OK - $($games.Count) new games, $($copyPlan.Count) new files." -ForegroundColor Green
+foreach ($game in $games) {
+    Write-Host "NEW: $($game.rom_file) [fallback $($game.resolution), sound $($game.sound)]"
+}
+
+if (-not $Apply) {
+    Write-Host 'DRY_RUN_OK - No files copied. Re-run with -Apply after reviewing the list.' -ForegroundColor Green
+    exit 0
+}
+
+foreach ($item in $copyPlan) {
+    $parent = Split-Path -Path $item.To -Parent
+    [System.IO.Directory]::CreateDirectory($parent) | Out-Null
+    # Strictly non-overwriting. If anything appeared since preflight, fail.
+    [System.IO.File]::Copy($item.From, $item.To, $false)
+    $newHash = (Get-FileHash -LiteralPath $item.To -Algorithm SHA256).Hash
+    if ($newHash -ne $item.SHA256) {
+        throw "DESTINATION HASH MISMATCH: $($item.Relative) - do not launch until checked"
+    }
+    Write-Host "VERIFIED: $($item.Relative)" -ForegroundColor Green
+}
+
+Write-Host 'ADDITIVE_COPY_OK' -ForegroundColor Green
+Write-Host 'Safely eject TF2 after confirming completion. No stable files were replaced.'
+) {
+        throw "UNSAFE DESTINATION IN PLAN: $rel"
+    }
+    if ($expect -notmatch '^[0-9a-fA-F]{64}$') {
+        throw "INVALID EXPECTED SHA256: $rel"
+    }
+    if ($seen.ContainsKey($rel.ToLowerInvariant())) {
+        throw "DUPLICATE TARGET IN PLAN: $rel"
+    }
+    $seen[$rel.ToLowerInvariant()] = $true
+
+    $windowsRel = $rel.Replace('/', '\')
+    $from = Join-Path $Stage $windowsRel
+    $to = Join-Path $Tf2Root $windowsRel
+
+    if (-not (Test-Path -LiteralPath $from -PathType Leaf)) {
+        throw "MISSING SOURCE: $from"
+    }
+    if (Test-Path -LiteralPath $to) {
+        throw "REFUSING TO OVERWRITE EXISTING FILE: $to"
+    }
+    $actualHash = (Get-FileHash -LiteralPath $from -Algorithm SHA256).Hash
+    if ($actualHash -ne $expect) {
+        throw "SOURCE HASH MISMATCH: $rel"
+    }
+
+    $copyPlan += [pscustomobject]@{ Relative=$rel; From=$from; To=$to; SHA256=$expect }
+}
+
+Write-Host "PREFLIGHT_OK - $($games.Count) new games, $($copyPlan.Count) new files." -ForegroundColor Green
+foreach ($game in $games) {
+    Write-Host "NEW: $($game.rom_file) [fallback $($game.resolution), sound $($game.sound)]"
+}
+
+if (-not $Apply) {
+    Write-Host 'DRY_RUN_OK - No files copied. Re-run with -Apply after reviewing the list.' -ForegroundColor Green
+    exit 0
+}
+
+foreach ($item in $copyPlan) {
+    $parent = Split-Path -Path $item.To -Parent
+    [System.IO.Directory]::CreateDirectory($parent) | Out-Null
+    # Strictly non-overwriting. If anything appeared since preflight, fail.
+    [System.IO.File]::Copy($item.From, $item.To, $false)
+    $newHash = (Get-FileHash -LiteralPath $item.To -Algorithm SHA256).Hash
+    if ($newHash -ne $item.SHA256) {
+        throw "DESTINATION HASH MISMATCH: $($item.Relative) - do not launch until checked"
+    }
+    Write-Host "VERIFIED: $($item.Relative)" -ForegroundColor Green
+}
+
+Write-Host 'ADDITIVE_COPY_OK' -ForegroundColor Green
+Write-Host 'Safely eject TF2 after confirming completion. No stable files were replaced.'
+) {
+        throw "INVALID NEW GAME IN PLAN: $name"
+    }
+    $jarPath = Join-Path $Tf2Root ('Roms\JAVA\' + $name)
+    if (-not (Test-Path -LiteralPath $jarPath -PathType Leaf)) {
+        throw "NEW GAME JAR MISSING ON TF2: $jarPath"
+    }
+}
+
 $seen = @{}
 $copyPlan = @()
 foreach ($entry in $files) {
@@ -58,7 +297,60 @@ foreach ($entry in $files) {
     $expect = [string]$entry.sha256
 
     # Permit only these very specific targets; never ROMs, the dispatcher or TF1.
-    if ($rel -notmatch '^(?:J2ME/universal-v1/(?:options|launcher-config|config/FreeJ2ME-Plus)/[A-Za-z0-9 _().+-]+\.opt|Roms/PORTS/J2ME_[a-z0-9_-]+\.sh)$') {
+    if ($rel -notmatch '^(?:J2ME/universal-v1/(?:options/auto-[a-z0-9-]+\.opt|launcher-config/auto-[a-z0-9-]+\.cfg|config/FreeJ2ME-Plus/[A-Za-z0-9 _().+-]+\.opt)|Roms/PORTS/J2ME_auto_[a-z0-9_]+\.sh)) {
+        throw "UNSAFE DESTINATION IN PLAN: $rel"
+    }
+    if ($expect -notmatch '^[0-9a-fA-F]{64}$') {
+        throw "INVALID EXPECTED SHA256: $rel"
+    }
+    if ($seen.ContainsKey($rel.ToLowerInvariant())) {
+        throw "DUPLICATE TARGET IN PLAN: $rel"
+    }
+    $seen[$rel.ToLowerInvariant()] = $true
+
+    $windowsRel = $rel.Replace('/', '\')
+    $from = Join-Path $Stage $windowsRel
+    $to = Join-Path $Tf2Root $windowsRel
+
+    if (-not (Test-Path -LiteralPath $from -PathType Leaf)) {
+        throw "MISSING SOURCE: $from"
+    }
+    if (Test-Path -LiteralPath $to) {
+        throw "REFUSING TO OVERWRITE EXISTING FILE: $to"
+    }
+    $actualHash = (Get-FileHash -LiteralPath $from -Algorithm SHA256).Hash
+    if ($actualHash -ne $expect) {
+        throw "SOURCE HASH MISMATCH: $rel"
+    }
+
+    $copyPlan += [pscustomobject]@{ Relative=$rel; From=$from; To=$to; SHA256=$expect }
+}
+
+Write-Host "PREFLIGHT_OK - $($games.Count) new games, $($copyPlan.Count) new files." -ForegroundColor Green
+foreach ($game in $games) {
+    Write-Host "NEW: $($game.rom_file) [fallback $($game.resolution), sound $($game.sound)]"
+}
+
+if (-not $Apply) {
+    Write-Host 'DRY_RUN_OK - No files copied. Re-run with -Apply after reviewing the list.' -ForegroundColor Green
+    exit 0
+}
+
+foreach ($item in $copyPlan) {
+    $parent = Split-Path -Path $item.To -Parent
+    [System.IO.Directory]::CreateDirectory($parent) | Out-Null
+    # Strictly non-overwriting. If anything appeared since preflight, fail.
+    [System.IO.File]::Copy($item.From, $item.To, $false)
+    $newHash = (Get-FileHash -LiteralPath $item.To -Algorithm SHA256).Hash
+    if ($newHash -ne $item.SHA256) {
+        throw "DESTINATION HASH MISMATCH: $($item.Relative) - do not launch until checked"
+    }
+    Write-Host "VERIFIED: $($item.Relative)" -ForegroundColor Green
+}
+
+Write-Host 'ADDITIVE_COPY_OK' -ForegroundColor Green
+Write-Host 'Safely eject TF2 after confirming completion. No stable files were replaced.'
+) {
         throw "UNSAFE DESTINATION IN PLAN: $rel"
     }
     if ($expect -notmatch '^[0-9a-fA-F]{64}$') {
