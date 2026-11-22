@@ -1,6 +1,6 @@
 # Experimental J2ME game profiles, stage 01
 
-**Status: game-option switching PASSED on hardware; aspect still requires an automatic-launch test. Draft, not merged.**
+**Status: automatic game options PASS; automatic aspect PASS in the stage-03 two-flag test on hardware. Final isolation test (without diagnostic overrides flag) pending. Draft, not merged.**
 
 ## Problem and approach
 
@@ -98,6 +98,18 @@ Upstream configuration source confirms the second key in `#if defined(DINGUX)`, 
 **Minimal next test:** back up the two existing `J2ME/profile-test-02/launcher-config/{bounce,diamond-rush}.cfg` files **to Windows storage**; append exactly `video_dingux_ipu_keep_aspect = "true"` to each test-only file, without altering any TF1 paths or game saves. Re-launch the *same* stage-02 Aspect Test entries and inspect Keep Aspect Ratio and resulting image before touching the menu. Avoid saving RetroArch configuration or overrides.
 
 If this fixes automatic aspect, update the main `scripts/stage-game-profiles.py` generator and remove the diagnostic-only `auto_overrides_enable = "false"` from the shipping template. If it does not, inspect active RetroArch settings/overrides more deeply rather than patching J2ME code.
+
+## Stage-03 hardware result: Dingux/IPU aspect PASS for both games (2026-11-22)
+
+After the user added `video_dingux_ipu_keep_aspect = "true"` to **both** stage-02 TF2-only launcher configs, they reported **automatic correct aspect rendering in Bounce and Diamond Rush** on the original RG35XX. This validates the Dingux/IPU key for the device and for both tested JAR versions.
+
+Earlier `video_force_aspect = "true"` alone did not toggle the visible Keep Aspect Ratio setting. Adding `auto_overrides_enable = "false"` alone also did not help. The successful test had **both** the new Dingux/IPU setting and the diagnostic `auto_overrides_enable = "false"` active.
+
+**Generator correction:** `scripts/stage-game-profiles.py` now writes `video_dingux_ipu_keep_aspect = "true"` for every game, and intentionally **does not** write `auto_overrides_enable = "false"` because the latter can affect unrelated user overrides and was unhelpful alone.
+
+**One remaining isolation check before merge:** remove only the `auto_overrides_enable = "false"` line from the two test-only stage-02 configs on TF2, while **retaining** `video_dingux_ipu_keep_aspect = "true"`. Verify automatic correct proportions for both games without manually toggling RetroArch. If both pass, the generated production-style settings (without the diagnostic flag) are hardware validated. Keep backups in Windows and do not touch TF1, saves or binaries.
+
+To repeat the test with the corrected generator in WSL, provide a **new** staging destination: the generator refuses overwriting `out/game-profiles-01`.
 
 ## Generate a temporary TF2 overlay
 
