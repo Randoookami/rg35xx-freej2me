@@ -43,10 +43,10 @@ These entries were installed as **new files only**; the user tested the resultin
 | --- | --- | --- | --- |
 | Bounce Tales | Runs almost perfectly out of the box; longer gameplay and saves not measured | Fallback 240×320, Sound Off | PASS |
 | Tower Bloxx | Runs almost perfectly out of the box; longer gameplay and saves not measured | Fallback 240×320, Sound Off | PASS |
-| The Sims Bowling | Runs correctly after device-tested resolution correction | **360×360 confirmed** for this user-supplied JAR variant; Sound Off | PASS |
+| The Sims Bowling | Runs correctly; **360×360 persists after full game relaunch and console reboot** | **360×360 confirmed** for this user-supplied JAR variant; Sound Off | PASS |
 | James Camerons Avatar | Runs, but this JAR is a **photo demo**, not a playable game | Fallback 240×320, Sound Off | PASS |
 
-The initial fallback was `240×320`; the user then experimentally identified and successfully tested **360×360** for this exact Sims Bowling JAR. This result does not imply that other game editions need the same size. Do not conflate the successful photo demo with compatibility for an actual playable Avatar game JAR.
+The initial fallback was `240×320`; the user then experimentally identified and successfully tested **360×360** for this exact Sims Bowling JAR, including persistence after a full reboot. All six supplied JAR entries subsequently launched with the intended resolutions. This is not a claim of sustained, feature-complete compatibility; the three newer playable games have not completed long-session/save testing. Other editions may need different phone sizes. Do not conflate the photo demo with a playable Avatar JAR.
 
 ## Sound caveat
 
