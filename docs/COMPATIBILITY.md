@@ -24,9 +24,16 @@ With the experimental paired Java JAR + ARM32 RGB565 core and the test-only Retr
 
 Legacy launchers intentionally still have the original in-game exit limitation. Test reports are based on user-observed hardware behavior. These tests do not prove compatibility with other J2ME games.
 
-## Visual caveats
+## Automatic profiles and aspect test (2026-11-22)
 
-The tested 176×208 Diamond Rush content initially showed blank right/bottom regions at incorrect phone resolutions. Selecting 176×208 filled the virtual game area. Physical display aspect-ratio correction is unfinished and the game may still appear stretched to 4:3.
+| Check | Bounce | Diamond Rush |
+| --- | --- | --- |
+| Game profile auto-selects phone resolution | PASS: 128×128 | PASS: 176×208 |
+| Switching back to Bounce restores its resolution | PASS | PASS (preceding game) |
+| Automatic aspect correction with `video_dingux_ipu_keep_aspect = "true"` | PASS | PASS |
+| Correct aspect without diagnostic `auto_overrides_enable = "false"` | PASS | PASS |
+
+The 176×208 Diamond Rush variant initially showed missing screen content with an incorrect phone profile; per-game `.opt` files resolved this. The generic `video_force_aspect = "true"` frontend setting alone did not activate GarlicOS's **Keep Aspect Ratio** control. The Dingux/IPU setting did. This is a user-observed result on the original RG35XX, not proof across other RetroArch versions or JAR editions.
 
 ## Sound caveat
 
