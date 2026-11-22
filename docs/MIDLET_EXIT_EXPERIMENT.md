@@ -42,6 +42,16 @@ The stock native core/JAR and TF1/TF2 remain untouched. The public `main` branch
 
 ## Hardware test design (not yet performed)
 
+After both components build successfully, prepare an isolated TF2 staging directory on WSL with:
+
+```bash
+PUB="$HOME/rg35xx-freej2me-public"
+git -C "$PUB" pull --ff-only
+bash "$PUB/scripts/stage-exit-test.sh"
+```
+
+The script verifies the specific experimental binary hashes from build #1 before staging anything. It stages the experimental core, Java JAR, separate Java wrapper, test-only RetroArch append config and two PORTS launchers under `$PUB/out/exit-test-tf2-01/`. It **does not write to either SD card**.
+
 The experimental core and modified libretro Java JAR **must be paired**. Copy neither over the working baseline.
 
 Prepare a separate TF2 system directory and RetroArch append config:
