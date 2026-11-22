@@ -1,0 +1,39 @@
+# Never publish proprietary J2ME games or saves
+*.jar
+*.jad
+*.class
+Saves/
+saves/
+logs/
+reports/
+J2ME_DIAG/
+*.log
+
+# Locally downloaded Java runtimes, system libraries, toolchains and binaries
+runtime/
+toolchain/
+sources/
+deploy/
+checkpoints/
+*.so
+*.deb
+*.tar
+*.tar.gz
+*.img
+*.zip
+*.7z
+*.exe
+*.dll
+*.class
+*.o
+*.a
+
+# Editors, OS metadata, build outputs
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+__pycache__/
+build/
+dist/
+*.part
