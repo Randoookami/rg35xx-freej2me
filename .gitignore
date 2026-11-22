@@ -35,5 +35,6 @@ Thumbs.db
 .idea/
 __pycache__/
 build/
+out/
 dist/
 *.part
