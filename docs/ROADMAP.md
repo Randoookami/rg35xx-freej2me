@@ -10,8 +10,8 @@
 ## Next priorities
 
 1. **MIDlet lifecycle — verified in two games:** the 0xFD Java-to-native signaling plus TF2-only `load_dummy_on_core_shutdown = "false"` returns from either game's Exit menu directly to GarlicOS. Manual Quit RetroArch still works. Broader game and unexpected-crash coverage remain future work.
-2. **Independent game profiles:** preserve game resolution and other core options per JAR without changing the user's TF1/RetroArch global configuration.
-3. **Aspect ratio and scaling:** avoid stretching portrait and square phone displays into 4:3.
+2. **Independent game profiles — verified in two games:** generated per-JAR `.opt` files automatically apply Bounce 128×128 and Diamond Rush 176×208 and restore settings when switching back. Generalize profiles to additional JAR variants and an ergonomic game launcher.
+3. **Aspect ratio and scaling — verified in two games:** `video_dingux_ipu_keep_aspect = "true"` in the TF2-only launcher `.cfg` preserves both square and portrait images automatically, without disabling global overrides. More games/display modes remain to be tested.
 4. **Input remapping:** sensible RG35XX button-to-phone keypad defaults plus per-game overrides.
 5. **Audio/MIDI:** diagnose exception and support optional stable sound; keep silent mode for baseline.
 6. **Measure actual FPS and latency:** distinguish new game frames from RetroArch's reported refresh.
