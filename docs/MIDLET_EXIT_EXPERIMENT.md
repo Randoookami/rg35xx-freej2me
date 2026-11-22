@@ -1,6 +1,6 @@
 # Experimental MIDlet exit -> RetroArch shutdown protocol
 
-**Status: successful hardware exit tests in Bounce and Diamond Rush; regression checks pending. Draft change, NOT a stable release.**
+**Status: successful hardware exit and save regression tests in Bounce and Diamond Rush; no plug-and-play release yet.**
 
 **Build result (2026-11-22):** On the original WSL development environment, both experimental components compiled successfully: `EXIT_EXPERIMENT_BUILD_OK`, `BUILD_EXIT_CODE=0`. Native core is ELF32 ARM EABI5 soft-float and directly links only `libc.so.0`. The Java libretro JAR compiled successfully using the Java 8 Docker image and Apache Ant. Build warnings about detached HEAD, apt/debconf and obsolete `-source 1.5` are non-fatal.
 
@@ -11,7 +11,7 @@ d133db3464bcd93417958bf087957cd2377866343a1fb4f13bdd260db4d74a69  freej2me_plus_
 79c049038530daf21b8e969e1c612d627d657d798510233409034f0483f7a867  freej2me_plus-lr.jar
 ```
 
-Compilation and SHA-256 were verified in WSL; subsequent hardware tests confirmed game-menu exit to GarlicOS in both tested games. Full regression coverage is still pending.
+Compilation and SHA-256 were verified in WSL; subsequent hardware tests confirmed game-menu exit to GarlicOS in both tested games. Both tested game saves persisted even after a device reboot; broader compatibility and crash-handling tests remain pending.
 
 ## Why a protocol change is needed
 
@@ -83,7 +83,7 @@ the user reported that choosing **Exit** within the Bounce game returned almost 
 
 This corroborates that the `0xFD` MIDlet exit handshake and RetroArch shutdown environment request can work together, with dummy-core loading disabled. The earlier log already confirmed `MIDlet normal exit requested; asking frontend to shut down.`
 
-**Diamond Rush exit subsequently verified;** manual RetroArch quit also passed on both games. Save persistence and error handling remain open.
+**Diamond Rush exit subsequently verified;** manual RetroArch quit also passed on both games. In-game progress persisted across re-launches and full device reboot; crash handling remains untested.
 
 ## Third hardware result: Diamond Rush passed
 
@@ -94,15 +94,29 @@ On 2026-11-22, the user confirmed that **Diamond Rush also exits from its in-gam
 ### Pending regression before merging
 
 - [x] Normal Quit RetroArch from a running test game still exits to GarlicOS (Bounce and Diamond Rush).
-- [ ] Restart both games; verify game progress and save persistence after in-game exit.
-- [ ] Confirm existing, non-experimental PORTS entries still work.
-- [ ] Confirm no errors or TF2 filesystem problems; inspect logs if unusual behavior occurs.
+- [x] Restart both games; verify game progress and save persistence after in-game exit and full console reboot.
+- [x] Confirm existing, non-experimental PORTS entries still launch and work; their old game-menu exit limitation remains as expected.
+- [ ] Verify TF2 filesystem integrity independently, and test unintentional Java crashes; no such verification is claimed.
 
 ## Fourth hardware result: manual RetroArch quit still works
 
 On 2026-11-22, the user confirmed that both test games also exit successfully using **Quick Menu → Main Menu → Quit RetroArch**, returning to GarlicOS. This is independent of the in-game MIDlet exit command.
 
 **Hardware result: PASS for manual RetroArch exit in both Bounce and Diamond Rush.** This confirms the experimental integration does not remove the existing manual exit path in these tests.
+
+## Fifth hardware result: persistence and legacy launcher regression
+
+On 2026-11-22, the user reported **three successful final regression checks**:
+
+- Both games launched again after a normal game-menu exit, and their **J2ME in-game progress persisted even after rebooting the RG35XX**.
+- The original (non-experimental) PORTS entries still ran, and their in-game exit still had its original limitation, as expected.
+- Manual RetroArch Quit and in-game Exit both returned to GarlicOS with the test build.
+
+This verifies J2ME/RMS persistence in these game versions, **not libretro savestate support**.
+
+## Related GarlicOS Recent limitation
+
+GarlicOS 1.4.9's `Recent` menu shows **"This core doesn't support savestates!"** for the FreeJ2ME core, and the user reports its `X` removal action does not remove these game entries. FreeJ2ME-Plus 1.53's native core defines `retro_serialize_size() = 0` and leaves serialize/unserialize unimplemented; that is distinct from persistent in-game RMS saves. This is a separate integration issue; the exit patch does not claim to implement savestates. Preserve user saves and back up GarlicOS history before any manual editing.
 
 ## Hardware test preparation (already completed for first tests)
 
@@ -146,4 +160,4 @@ If GarlicOS ignores `RETRO_ENVIRONMENT_SHUTDOWN`, keep the feature experimental 
 
 Exit the test normally or through RetroArch. Launch the original Bounce/Diamond Rush PORTS entries (they still use the known-good core and normal BIOS runtime). Remove only the separate `J2ME/test-system`, `freej2me_plus_exit_test_libretro.so` and test launcher after preserving logs.
 
-**Do not merge this experiment into `main` until actual hardware results are reviewed.**
+**Hardware exit and save regression passed for the two tested games.** Any merge should preserve the earlier known-good core as a backup; general game compatibility and savestates remain separate issues.
