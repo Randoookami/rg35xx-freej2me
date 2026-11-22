@@ -1,6 +1,6 @@
 # Experimental MIDlet exit -> RetroArch shutdown protocol
 
-**Status: untested on hardware. Draft change, NOT a stable release.**
+**Status: successful hardware exit tests in Bounce and Diamond Rush; regression checks pending. Draft change, NOT a stable release.**
 
 **Build result (2026-11-22):** On the original WSL development environment, both experimental components compiled successfully: `EXIT_EXPERIMENT_BUILD_OK`, `BUILD_EXIT_CODE=0`. Native core is ELF32 ARM EABI5 soft-float and directly links only `libc.so.0`. The Java libretro JAR compiled successfully using the Java 8 Docker image and Apache Ant. Build warnings about detached HEAD, apt/debconf and obsolete `-source 1.5` are non-fatal.
 
@@ -11,7 +11,7 @@ d133db3464bcd93417958bf087957cd2377866343a1fb4f13bdd260db4d74a69  freej2me_plus_
 79c049038530daf21b8e969e1c612d627d657d798510233409034f0483f7a867  freej2me_plus-lr.jar
 ```
 
-This is compilation verification only; MIDlet exit / RetroArch shutdown remains **untested on actual hardware**.
+Compilation and SHA-256 were verified in WSL; subsequent hardware tests confirmed game-menu exit to GarlicOS in both tested games. Full regression coverage is still pending.
 
 ## Why a protocol change is needed
 
@@ -67,7 +67,7 @@ Hypothesis: the RetroArch option `load_dummy_on_core_shutdown = "true"` causes `
 load_dummy_on_core_shutdown = "false"
 ```
 
-**Retest required:** choose Exit within Bounce and check whether the process returns directly to GarlicOS without touching RetroArch's menu. Do not change the global TF1 RetroArch configuration.
+**Retest result:** with this setting, Bounce returned directly to GarlicOS. Do not change the global TF1 RetroArch configuration.
 
 ## Second hardware result: automatic return to GarlicOS confirmed for Bounce
 
@@ -83,9 +83,22 @@ the user reported that choosing **Exit** within the Bounce game returned almost 
 
 This corroborates that the `0xFD` MIDlet exit handshake and RetroArch shutdown environment request can work together, with dummy-core loading disabled. The earlier log already confirmed `MIDlet normal exit requested; asking frontend to shut down.`
 
-**Not yet verified:** exit behavior and game/save regressions for Diamond Rush; no full release or merge until additional testing.
+**Diamond Rush exit subsequently verified;** save persistence, RetroArch manual exit and error handling remain open.
 
-## Hardware test design (not yet performed)
+## Third hardware result: Diamond Rush passed
+
+On 2026-11-22, the user confirmed that **Diamond Rush also exits from its in-game menu directly back to GarlicOS**, using the same experimental 0xFD core and Java JAR pair and the test-only RetroArch configuration `load_dummy_on_core_shutdown = "false"`.
+
+**Hardware result: PASS for Diamond Rush (exit behavior).** This is a user-observed result; no separate Diamond Rush log has yet been reviewed. Together with Bounce, two distinct MIDlets now demonstrate the intended behavior without game-specific patches.
+
+### Pending regression before merging
+
+- Normal Quit RetroArch from a running test game still exits to GarlicOS.
+- Restart both games; verify game progress and save persistence after in-game exit.
+- Confirm existing, non-experimental PORTS entries still work.
+- Confirm no errors or TF2 filesystem problems; inspect logs if unusual behavior occurs.
+
+## Hardware test preparation (already completed for first tests)
 
 After both components build successfully, prepare an isolated TF2 staging directory on WSL with:
 
