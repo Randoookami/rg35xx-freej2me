@@ -44,6 +44,7 @@ GarlicOS 1.4.9 / RetroArch (TF1; not modified)
 - **Game-menu exit:** the optional Java + native `0xFD` handshake was tested successfully in Bounce and Diamond Rush, returning directly to GarlicOS with `load_dummy_on_core_shutdown = "false"` in the TF2-only RetroArch configuration. The older launchers still use the original exit behavior; the modified JAR and core must be installed as a pair.
 - **Per-game phone resolution and display aspect** are automatically set by the verified declarative TF2 profiles for Bounce (128×128) and Diamond Rush (176×208). The GarlicOS/Dingux frontend needs `video_dingux_ipu_keep_aspect = "true"` in each test launcher config; the generic `video_force_aspect` setting alone was insufficient. Other game variants remain untested.
 - **In-game save persistence** was verified for Bounce and Diamond Rush across launches and a console reboot. **Libretro save states are not supported**, so the GarlicOS `Recent` menu displays its built-in unsupported-save-state message. Its `X` history-removal behavior is also under investigation.
+- **Universal J2ME Launcher:** the shared POSIX-shell dispatcher with generated GarlicOS PORTS shortcuts launches Bounce and Diamond Rush on original RG35XX hardware. Host-side discovery can generate a safe fallback profile for other JAR filenames, but arbitrary third-party JARs are not yet hardware verified.
 - **Gamepad mapping** and performance tuning need further validation.
 - **TF2 FAT32 integrity** should be monitored: filesystem corruption was encountered during development; its cause has not been established.
 - No supported installer or tested downloadable release bundle is available yet.
@@ -56,6 +57,7 @@ GarlicOS 1.4.9 / RetroArch (TF1; not modified)
 - [Known issues and roadmap](docs/ROADMAP.md).
 - [MIDlet exit integration and hardware test results](docs/MIDLET_EXIT_EXPERIMENT.md).
 - [Per-game profiles and aspect test results](docs/GAME_PROFILES_EXPERIMENT.md).
+- [Universal J2ME Launcher and hardware testing](docs/UNIVERSAL_LAUNCHER_EXPERIMENT.md).
 - [Development credits and AI assistance](docs/DEVELOPMENT_CREDITS.md).
 - [Third-party software and redistribution](docs/THIRD_PARTY.md).
 
