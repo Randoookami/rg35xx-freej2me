@@ -2,7 +2,7 @@
 """Stage independent, declarative J2ME game profiles for the original RG35XX.
 
 No SD card is modified. Uses the already hardware-tested exit core+Java pairing.
-First hardware test of automatic core-option loading and aspect correction only.
+Generated profiles use the hardware-tested GarlicOS Dingux/IPU aspect key.
 """
 import json
 import re
@@ -99,6 +99,8 @@ def main():
             "rgui_config_directory = " + quote_config(TEST_PREFIX + "/config"),
             "game_specific_options = " + quote_config("true"),
             "video_force_aspect = " + quote_config("true"),
+            # GarlicOS 1.4.9 Dingux/IPU: hardware-tested Keep Aspect Ratio switch.
+            "video_dingux_ipu_keep_aspect = " + quote_config("true"),
             "video_aspect_ratio_auto = " + quote_config("true"),
             "video_scale_integer = " + quote_config("false"),
             "history_list_enable = " + quote_config("false"),
