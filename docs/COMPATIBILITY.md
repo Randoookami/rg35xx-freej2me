@@ -43,10 +43,10 @@ These entries were installed as **new files only**; the user tested the resultin
 | --- | --- | --- | --- |
 | Bounce Tales | Runs almost perfectly out of the box; longer gameplay and saves not measured | Fallback 240×320, Sound Off | PASS |
 | Tower Bloxx | Runs almost perfectly out of the box; longer gameplay and saves not measured | Fallback 240×320, Sound Off | PASS |
-| The Sims Bowling | Starts, but user reports resolution/orientation problem | Fallback 240×320 **not yet confirmed suitable** | PASS |
+| The Sims Bowling | Runs correctly after device-tested resolution correction | **360×360 confirmed** for this user-supplied JAR variant; Sound Off | PASS |
 | James Camerons Avatar | Runs, but this JAR is a **photo demo**, not a playable game | Fallback 240×320, Sound Off | PASS |
 
-The user mentioned `320×240` while the generated profile is `240×320`; neither should be asserted as Sims Bowling's verified intended screen size. A screenshot or an in-game resolution-selection test is needed. Do not conflate the successful photo demo with compatibility for an actual playable Avatar game JAR.
+The initial fallback was `240×320`; the user then experimentally identified and successfully tested **360×360** for this exact Sims Bowling JAR. This result does not imply that other game editions need the same size. Do not conflate the successful photo demo with compatibility for an actual playable Avatar game JAR.
 
 ## Sound caveat
 
