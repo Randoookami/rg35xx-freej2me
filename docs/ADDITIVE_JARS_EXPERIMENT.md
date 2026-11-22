@@ -1,6 +1,6 @@
 # Add new J2ME games without replacing Universal Launcher v1
 
-**Status:** candidate JAR filenames are known from the user's TF2 directory, but this additive generator has **not yet been verified with WSL tests or on RG35XX hardware**. Keep existing Bounce and Diamond Rush installs intact.
+**Status:** candidate JAR filenames are known from the user's TF2 directory; the first WSL attempt stopped before the unit tests because /mnt/f/Roms/JAVA was unavailable. A host-only filename snapshot workaround is documented below. The additive generator has not yet been tested on RG35XX hardware. Keep existing Bounce and Diamond Rush installs intact.
 
 ## Six JARs currently on TF2
 
@@ -31,6 +31,32 @@ It creates `4 × 4 = 16` **new** files for the four candidates:
 The auto IDs include a short hash of the filename, ensuring stable, low-collision names; this produces longer PORTS entry labels than a handcrafted launcher. The stage contains no `dispatch.sh`, no existing game `.opt/.cfg` or shortcuts, no private JARs, and no Java binaries. It writes a separate **host-only** `.host-only/install-plan.json` with file SHA-256 hashes.
 
 The PowerShell copier `scripts/install-additional-jars.ps1` defaults to **dry-run**. With `-Apply` it refuses existing target paths, verifies source/destination hashes, and checks known working TF2 files before copying. It cannot replace the dispatcher, TF1 RetroArch configuration or game saves.
+
+## WSL note: if TF2 is not mounted at /mnt/f
+
+On 2026-11-22, the first user command run stopped at `test -d /mnt/f/Roms/JAVA` (no `=== UNIT TESTS ===` line followed); therefore **none of the seven new unit tests nor the additive generator had yet run**. Windows can see a removable `F:` drive even if WSL's `/mnt/f` is not mounted.
+
+**No need to mount or write to TF2 just to test the host generator.** It scans *only filenames* and checks the two existing known names; create harmless empty filename placeholders on WSL's own home filesystem using the user's six reported names:
+
+```bash
+PUB="$HOME/rg35xx-freej2me-public"
+git -C "$PUB" pull --ff-only
+ROM_NAMES_ONLY="$(mktemp -d "$HOME/j2me-romnames-XXXXXX")"
+touch "$ROM_NAMES_ONLY/Bounce.jar" \
+  "$ROM_NAMES_ONLY/Diamond Rush.jar" \
+  "$ROM_NAMES_ONLY/Bounce Tales.jar" \
+  "$ROM_NAMES_ONLY/Tower Bloxx.jar" \
+  "$ROM_NAMES_ONLY/The Sims Bowling.jar" \
+  "$ROM_NAMES_ONLY/James Camerons Avatar.jar"
+python3 -m unittest discover -s "$PUB/tests" -p 'test_additional_jars.py' -v
+python3 "$PUB/scripts/stage-additional-jars.py" \
+  "$PUB/out/additional-jars-01" --rom-dir "$ROM_NAMES_ONLY"
+find "$PUB/out/additional-jars-01/Roms/PORTS" -type f -name '*.sh' -exec sh -n {} \;
+```
+
+The `ROM_NAMES_ONLY` files are **zero-byte dummy filename entries on WSL only**, never proprietary game JARs and never copied to TF2. Staging still produces only the 16 real config/shortcut files; the original six JARs stay on TF2. The install copier separately confirms **every new JAR really exists at `F:\Roms\JAVA`** before allowing an actual copy.
+
+Do not use `--Apply` until source generation, dry-run, and actual TF2 JAR existence checks all pass.
 
 ## Step 1: stage in WSL (NO SD writes)
 
