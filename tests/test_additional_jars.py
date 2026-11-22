@@ -53,7 +53,8 @@ class AdditiveJarsTests(unittest.TestCase):
         self.assertFalse((self.dest / "Roms/PORTS/J2ME_bounce.sh").exists())
         self.assertFalse((self.dest / "Roms/PORTS/J2ME_diamond_rush.sh").exists())
         for g in plan["games"]:
-            self.assertEqual(g["resolution"], "240x320")
+            expected_resolution = "360x360" if g["rom_file"] == "The Sims Bowling.jar" else "240x320"
+            self.assertEqual(g["resolution"], expected_resolution)
             self.assertEqual(g["sound"], "off")
             self.assertEqual(g["backlight"], "Disabled")
             base = self.dest / "J2ME/universal-v1"
@@ -61,7 +62,7 @@ class AdditiveJarsTests(unittest.TestCase):
             self.assertIn('video_dingux_ipu_keep_aspect = "true"', cfg)
             self.assertNotIn("auto_overrides_enable", cfg)
             opts = (base / "options" / (g["id"] + ".opt")).read_text()
-            self.assertIn('freej2me_resolution = "240x320"', opts)
+            self.assertIn('freej2me_resolution = "' + expected_resolution + '"', opts)
             launcher = self.dest / "Roms/PORTS" / (
                 "J2ME_" + g["id"].replace("-", "_") + ".sh")
             self.assertEqual(subprocess.run(["sh", "-n", str(launcher)]).returncode, 0)
@@ -72,6 +73,20 @@ class AdditiveJarsTests(unittest.TestCase):
         self.assertEqual(len([p for p in self.dest.rglob("*") if p.is_file()]), 17)
         for original in KNOWN + EXTRAS:
             self.assertTrue((self.roms / original).exists())
+
+    def test_sims_bowling_verified_resolution_preserves_auto_id(self):
+        result = self.run_stage("--only", "The Sims Bowling.jar")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        plan = json.loads((self.dest / ".host-only/install-plan.json").read_text())
+        self.assertEqual(len(plan["games"]), 1)
+        game = plan["games"][0]
+        self.assertEqual(game["id"], "auto-the-sims-bowling-c00b0e66")
+        self.assertEqual(game["resolution"], "360x360")
+        self.assertIn("VERIFIED PROFILE: The Sims Bowling.jar 360x360", result.stdout)
+        self.assertEqual(len(plan["files"]), 4)
+        opts = (self.dest / "J2ME/universal-v1/options" /
+                (game["id"] + ".opt")).read_text()
+        self.assertIn('freej2me_resolution = "360x360"', opts)
 
     def test_second_stage_fails_without_changes(self):
         self.assertEqual(self.run_stage().returncode, 0)
