@@ -1,6 +1,6 @@
 # Universal J2ME Launcher, experiment 01
 
-**Status: host-only prototype, not tested on original RG35XX hardware. Do not merge or replace the existing working launchers.**
+**Status: WSL unit tests PASS (5/5), shell syntax PASS, and first hardware trial PASS in Bounce and Diamond Rush on original RG35XX / GarlicOS 1.4.9. Arbitrary JAR compatibility and a graphical picker remain untested.**
 
 ## Goal
 
@@ -84,7 +84,13 @@ python3 "$PUB/scripts/stage-universal-launcher.py" \
 
 This `--rom-dir` argument is **read only**. It enumerates JAR filenames, does not parse proprietary game data, copy ROMs, or alter the card. It requires the two known JAR files to be present and aborts otherwise, to prevent broken known-game shortcuts. If Windows assigns another drive letter, adjust only that optional scan path.
 
-## Hardware acceptance criteria — NOT YET PERFORMED
+## First hardware acceptance — PASS on two games (2026-11-22)
+
+The user transferred the ten staged files to TF2 and reported that the new PORTS entries `J2ME_bounce` and `J2ME_diamond_rush` are both visible in GarlicOS and **work as intended**. This confirms that the single shared dispatcher can launch both previously validated JAR variants using generated game profiles on original RG35XX hardware.
+
+The previously demonstrated 128×128/176×208 resolutions, Dingux/IPU aspect fix, MIDlet Exit protocol and RMS persistence remain the baseline. The latest report did not provide *separate* detailed or measured evidence for every subtest (for example, RMS after another full reboot). An unknown third JAR remains untested on hardware. No new FreeJ2ME C/Java patches were needed. The existing stable launchers are still available.
+
+## Hardware acceptance criteria — follow-ups for wider compatibility
 
 When WSL tests pass, stage the generated files on TF2 *under their own paths* without overwriting the existing test launches. Then check:
 
