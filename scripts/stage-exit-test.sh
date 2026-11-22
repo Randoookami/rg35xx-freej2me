@@ -42,6 +42,7 @@ system_directory = "/mnt/SDCARD/J2ME/test-system"
 savefile_directory = "/mnt/SDCARD/J2ME/test-saves"
 savestate_directory = "/mnt/SDCARD/J2ME/test-saves"
 config_save_on_exit = "false"
+load_dummy_on_core_shutdown = "false"
 CFG
 
 for GAME in Bounce DiamondRush; do
