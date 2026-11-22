@@ -41,6 +41,29 @@ The generator never writes to TF1/TF2. It refuses to overwrite an existing stagi
 
 Copy *only* the generated files to matching TF2 relative paths, after verifying the SD mount and inspecting the files. Do not replace the existing `J2ME_Bounce_Exit_Test.sh`, `J2ME_DiamondRush_Exit_Test.sh`, the tested core, Java JAR, or game saves.
 
+## First hardware feedback (2026-11-22)
+
+User tested generated profile launchers on original RG35XX/GarlicOS 1.4.9:
+
+| Check | Report |
+| --- | --- |
+| Bounce automatically selects 128×128 | **PASS** |
+| Diamond Rush automatically selects 176×208 | **PASS** |
+| Switching back to Bounce selects 128×128 again | **PASS** |
+| Display preserves original aspect | **FAIL**: stretched display persists |
+
+**Interpretation:** per-launch FreeJ2ME core-option files load correctly, including on a subsequent game switch; the aspect-ratio configuration is not yet sufficient. Do **not** patch Java or RGB565 rendering on this evidence alone. The native code already emits geometry with width/height, but GarlicOS's RetroArch frontend may enforce 4:3, or overrides may take precedence.
+
+### Next targeted hardware diagnostic (no SD writes)
+
+1. Start `J2ME_bounce_Profile_Test` and observe stretched image.
+2. Open RetroArch's menu, then **Settings → Video → Scaling → Keep Aspect Ratio**. Record if the option is currently **Off** or **On**. GarlicOS 1.4.9 commonly exposes this simple toggle rather than the modern Aspect Ratio list.
+3. If **Off**, turn **On** *temporarily* and resume gameplay. Does Bounce become square, with black bars? If already **On**, note that and **do not toggle it off**.
+4. Do not choose Save Configuration, Save Core Override, Save Game Override, or change any TF1 files.
+5. Exit the game normally. Report toggle status and observed result; only then decide whether to correct the launcher config or diagnose frontend override precedence.
+
+This is a **diagnostic**, not a confirmed fix. Do not assume modern RetroArch's numeric `aspect_ratio_index` constants: versions differ.
+
 ## What to check on hardware
 
 1. Launch **Bounce Profile Test**. Under Quick Menu → Core Options, check `Phone Resolution = 128x128`, `Virtual Phone Sound = Off`, `LCD Backlight Color = Disabled`. Do not correct these manually before recording observed values.
