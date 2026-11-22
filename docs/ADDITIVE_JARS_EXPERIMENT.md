@@ -1,6 +1,6 @@
 # Add new J2ME games without replacing Universal Launcher v1
 
-**Status:** WSL host checks passed (7/7 unit tests and shell syntax), PowerShell syntax and dry-run checks passed, and the four new JAR shortcuts were tried on original RG35XX hardware. Bounce Tales and Tower Bloxx run almost perfectly with fallback defaults; Avatar JAR is a working photo demo, not the anticipated playable game; The Sims Bowling launches but display sizing is unresolved. All four can exit to GarlicOS. Keep existing Bounce and Diamond Rush installs intact.
+**Status:** WSL host checks passed (7/7 unit tests and shell syntax), PowerShell syntax and dry-run checks passed, and the four new JAR shortcuts were tried on original RG35XX hardware. Bounce Tales and Tower Bloxx run almost perfectly with fallback defaults; Avatar JAR is a working photo demo, not the anticipated playable game; The Sims Bowling also runs well after the user experimentally selected 360×360. All four can exit to GarlicOS. Keep existing Bounce and Diamond Rush installs intact.
 
 ## Six JARs currently on TF2
 
@@ -12,7 +12,7 @@ The user listed these legally supplied local JAR filenames (the game binaries ar
 | `Diamond Rush.jar` | Tested in Universal Launcher v1 | 176×208, sound Off |
 | `Bounce Tales.jar` | **NEW, untested** | Temporary fallback 240×320, sound Off |
 | `Tower Bloxx.jar` | **NEW, untested** | Temporary fallback 240×320, sound Off |
-| `The Sims Bowling.jar` | **NEW, untested** | Temporary fallback 240×320, sound Off |
+| `The Sims Bowling.jar` | **Hardware tested** | **360×360** (user-verified), sound Off |
 | `James Camerons Avatar.jar` | **NEW, untested** | Temporary fallback 240×320, sound Off |
 
 The four new defaults are guesses for compatibility **only**, not detected resolutions. The universal `video_dingux_ipu_keep_aspect = "true"` option still preserves the selected virtual phone aspect ratio. Change a new game's size later through a safely regenerated additive profile after identifying what that game expects; never modify FreeJ2ME C/Java per title as the first response.
@@ -25,12 +25,33 @@ The four new defaults are guesses for compatibility **only**, not detected resol
 | --- | --- | --- | --- |
 | `Bounce Tales.jar` | Works almost perfectly out of the box | PASS | Promising at fallback `240x320`; precise compatibility still needs a longer test |
 | `Tower Bloxx.jar` | Works almost perfectly out of the box | PASS | Promising at fallback `240x320`; precise compatibility still needs a longer test |
-| `The Sims Bowling.jar` | User reports resolution/orientation mismatch | PASS | **Needs targeted device-profile resolution check**; do not patch FreeJ2ME C/Java |
+| `The Sims Bowling.jar` | Runs well after experimentally selecting **360×360** | PASS | Verified virtual phone resolution for this JAR edition; 240×320 fallback was incorrect |
 | `James Camerons Avatar.jar` | Launches, but is a **photo demo**, not the expected playable Avatar game | PASS | Correctly classify this particular JAR as a photo demo, not as game compatibility evidence |
 
-**Resolution precision:** the generated fallback for every extra JAR is actually **240×320 (portrait)**. The user described Sims Bowling as "definitely not 320×240"; that phrase must not be interpreted as a verified required resolution or orientation. Collect a screen photo and observe cropping, black bars, stretched sprites, title-screen fit or visible menus before choosing a new `freej2me_resolution`.
+**Resolution precision:** the first batch used **240×320 portrait** for all four new JARs. The user then tested The Sims Bowling and confirmed **360×360 square** was correct for their particular edition. The other three used 240×320, including the Avatar *photo demo* (not a playable Avatar game). No game-specific Java or RGB565 changes were needed.
 
 **Next gate before merging PR:** retry known `J2ME_bounce` and `J2ME_diamond_rush` entries as regression tests, confirm no saves changed unexpectedly, and document the Sims screen condition. Preserve the original four new `.opt/.cfg` files until a controlled, backed-up per-profile update workflow is available. No global TF1 changes, no per-game emulator patches.
+
+## Declarative corrections for previously discovered games
+
+`profiles/additional-overrides.json` records `The Sims Bowling.jar` with `resolution: 360x360`. The new `stage-additional-jars.py` version applies this override after filename discovery and **before** generating `.opt` files. The hash-derived profile ID is unchanged: `auto-the-sims-bowling-c00b0e66`. All other new JARs retain the conservative fallback. This is a per-variant data fix, not a hardcoded game branch in the emulator.
+
+**Important deployment rule:** the existing `out/additional-jars-01` stage was generated before the correction and still contains 240×320 for Sims; **do not repeat the 16-file copy or overwrite the known working TF2 files**. Updated staging requires a brand-new WSL output directory, and the existing no-overwrite copier must correctly reject attempts to replace the already installed files. The verified 360×360 setting may currently have been selected in RetroArch's menu; persistence across a completely fresh relaunch is not yet separately confirmed. A narrowly scoped, backup-first *profile-update* workflow will be a later improvement.
+
+To validate new output without touching TF2:
+
+```bash
+PUB="$HOME/rg35xx-freej2me-public"
+git -C "$PUB" pull --ff-only
+python3 -m unittest discover -s "$PUB/tests" -p 'test_additional_jars.py' -v
+# To regenerate, supply the same six-name dummy directory used previously,
+# but a NEW output destination:
+python3 "$PUB/scripts/stage-additional-jars.py" \
+  "$PUB/out/additional-jars-after-sims-01" \
+  --rom-dir "$ROM_NAMES_ONLY"
+```
+
+The last command requires that `ROM_NAMES_ONLY` still points to the host-only six-name directory; otherwise recreate it. It only proves generation. **Do not copy these 16 files** onto the already installed TF2.
 
 ## Architecture and safety
 
