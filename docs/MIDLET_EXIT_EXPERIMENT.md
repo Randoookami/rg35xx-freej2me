@@ -69,6 +69,22 @@ load_dummy_on_core_shutdown = "false"
 
 **Retest required:** choose Exit within Bounce and check whether the process returns directly to GarlicOS without touching RetroArch's menu. Do not change the global TF1 RetroArch configuration.
 
+## Second hardware result: automatic return to GarlicOS confirmed for Bounce
+
+After changing only the **experimental** RetroArch append config on TF2 to:
+
+```ini
+load_dummy_on_core_shutdown = "false"
+```
+
+the user reported that choosing **Exit** within the Bounce game returned almost immediately to the GarlicOS game-selection menu from which `J2ME_Bounce_Exit_Test` was launched, without needing to choose `Quit RetroArch`.
+
+**Hardware result: PASS for Bounce on the original RG35XX / GarlicOS 1.4.9.**
+
+This corroborates that the `0xFD` MIDlet exit handshake and RetroArch shutdown environment request can work together, with dummy-core loading disabled. The earlier log already confirmed `MIDlet normal exit requested; asking frontend to shut down.`
+
+**Not yet verified:** exit behavior and game/save regressions for Diamond Rush; no full release or merge until additional testing.
+
 ## Hardware test design (not yet performed)
 
 After both components build successfully, prepare an isolated TF2 staging directory on WSL with:
