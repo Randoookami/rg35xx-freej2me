@@ -137,14 +137,14 @@ case "$ID" in
     ""|*[!a-z0-9-]*) echo "Invalid profile id" >&2; exit 2 ;;
 esac
 case "$ROM" in
-    "$ROM_ROOT"/*.jar) ;;
+    "$ROM_ROOT"/*.[jJ][aA][rR]) ;;
     *) echo "JAR must be under $ROM_ROOT" >&2; exit 2 ;;
 esac
 BASENAME=$(basename "$ROM")
-case "$BASENAME" in
-    ""|*.jar) ;;
-    *) echo "Invalid JAR basename" >&2; exit 2 ;;
-esac
+if [ -z "$BASENAME" ]; then
+    echo "Invalid JAR basename" >&2
+    exit 2
+fi
 if [ "$ROM" != "$ROM_ROOT/$BASENAME" ]; then
     echo "Nested paths or traversal are unsupported" >&2
     exit 2
@@ -263,8 +263,13 @@ def main():
     )
     args = parser.parse_args()
     try:
+        destination = args.destination.expanduser().resolve()
+        # Do not accidentally stage directly onto removable TF2, TF1 or Windows drives.
+        if re.match(r"^/(?:mnt/(?:[a-zA-Z]|SDCARD|mmc)|media|run/media)(?:/|$)",
+                    str(destination)):
+            raise ValueError("destination must be a host-only folder, not a mounted drive")
         games = discover(read_profiles(), args.rom_dir)
-        stage(args.destination.expanduser().resolve(), games)
+        stage(destination, games)
     except (ValueError, OSError, KeyError, TypeError) as exc:
         parser.exit(1, "ERROR: " + str(exc) + "\n")
 
