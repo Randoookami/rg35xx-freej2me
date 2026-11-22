@@ -38,6 +38,18 @@ The known-good RGB565 core SHA-256 was:
 
 This checksum identifies one historical locally built file; it may change across compiler or source changes.
 
+## Reproducibility verified on 2026-11-22
+
+The public repository was cloned fresh at commit `214efbd` on the original development WSL workstation. Running `scripts/build-core.sh` with the pinned upstream FreeJ2ME source and the existing Docker cross-toolchain completed successfully (`BUILD_EXIT_CODE=0`). The patched `src/libretro/freej2me_libretro.c` matched the previously tested source **byte for byte**, and the rebuilt ARM32 core had the **same SHA-256**:
+
+```text
+555dd3ace94cd1076cedc1128d040b564d39014f59a111330607eee9c3bdd25e
+```
+
+Verified ABI: ELF32 ARM EABI5 soft-float; direct dependency: `libc.so.0`.
+
+**Scope:** This establishes a reproducible native build **in that existing toolchain/environment**. It is not yet an independent toolchain bootstrap or a verification of the complete Java/TF2 deployment. Keep the original working core as a regression baseline.
+
 ## Java runtime integration
 
 The Java runtime is a **separate process**, not linked into the libretro core. The successful setup used Zulu 8u512 ARMHF, extracted Debian 11 ARMHF glibc 2.31 libraries, a copied `jre/bin/java` binary whose ELF interpreter was set with `patchelf` to the private TF2 loader path, and a shell wrapper to configure Java library search paths and reorder FreeJ2ME 1.53's launch arguments.
